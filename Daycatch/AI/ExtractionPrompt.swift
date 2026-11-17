@@ -71,14 +71,14 @@ enum ExtractionPrompt {
           "start": "2026-11-19T15:00:00+08:00",
           "end": "2026-11-19T16:30:00+08:00",
           "allDay": false,
-          "location": "3F large meeting room",
-          "notes": "Dial-in 728 391 045",
+          "location": "Room 302",
+          "notes": "Dial-in 555 0134",
           "alarmMinutesBefore": 15,
           "inferred": []
         },
         {
           "kind": "todo",
-          "title": "Prepare Q4 data for your module",
+          "title": "Prepare your Q4 data",
           "due": "2026-11-19T15:00:00+08:00",
           "inferred": []
         }

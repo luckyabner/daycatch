@@ -36,7 +36,7 @@ struct Strings: Equatable, Sendable {
     var openSettings: String { pick("打开设置", "Open Settings") }
     var openSystemSettings: String { pick("打开系统设置", "Open System Settings") }
     var manualInput: String { pick("手动输入", "Enter manually") }
-    var recapture: String { pick("重新框选", "Reselect") }
+    var recapture: String { pick("重新框选", "Capture again") }
     var choose: String { pick("请选择", "Choose") }
     var colonSeparator: String { pick("：", ": ") }
 
@@ -353,7 +353,7 @@ struct Strings: Equatable, Sendable {
         pick("\(time) 前完成", "Due by \(time)")
     }
 
-    var dueThatDay: String { pick("当天截止", "Due that day") }
+    var dueThatDay: String { pick("当天截止", "Due end of day") }
     var noDueTime: String { pick("无截止时间", "No due time") }
     var noDueDate: String { pick("无截止日期", "No due date") }
 
@@ -469,7 +469,7 @@ struct Strings: Equatable, Sendable {
     func noSelectedTextMessage(_ shortcut: String) -> String {
         pick(
             "先在聊天或邮件里选中一段文字，再按 \(shortcut)。如果这个应用不支持读取，可以复制后在菜单栏的输入框里粘贴识别。",
-            "Select some text in a chat or email, then press \(shortcut). If the app doesn’t allow reading, copy the text and paste it into the menu bar input instead."
+            "Select some text in a chat or email, then press \(shortcut). If Daycatch can’t read the selection in that app, copy the text and paste it into the menu bar input instead."
         )
     }
 
@@ -510,7 +510,7 @@ struct Strings: Equatable, Sendable {
     }
 
     var aiModelNotFoundMessage: String {
-        pick("请在设置里检查模型名称是否正确，以及当前 Key 是否能使用该模型。", "Check the model name in Settings and whether your key can use it.")
+        pick("请在设置里检查模型名称是否正确，以及当前 Key 是否能使用该模型。", "Double-check the model name in Settings, and whether your key has access to that model.")
     }
 
     var aiRateLimitedTitle: String { pick("请求太频繁或额度不足", "Too many requests or out of quota") }

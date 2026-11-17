@@ -145,7 +145,7 @@ enum SampleData {
 
     static func selectionSource(_ language: AppLanguage) -> String {
         isEnglish(language)
-            ? "@all Q4 review this Thursday (Nov 19) at 3pm in the 3F large meeting room. Please prepare your module’s data beforehand — the meeting should take about 1.5 hours. Remote folks can dial in with 728 391 045."
+            ? "@all Q4 review this Thursday (Nov 19) at 3pm in Room 302. Please bring your module’s numbers — the meeting should take about 1.5 hours. Remote folks can dial in on 555 0134."
             : "@所有人 周四（11月19日）下午3点在3楼大会议室开 Q4 复盘会，请大家提前准备各自模块的数据，会议预计1个半小时。线上参会的同学用会议号 728 391 045。"
     }
 
@@ -153,7 +153,7 @@ enum SampleData {
         let english = isEnglish(language)
         return ExtractionResult(
             summary: english
-                ? "Q4 review on Thursday at 3pm on the 3F, in person and remote; prepare your module’s data before the meeting."
+                ? "Q4 review on Thursday at 3pm in Room 302, in person and remote; bring your module’s numbers before the meeting."
                 : "周四下午 3 楼开 Q4 复盘会，线下线上同时进行；会前需准备各自模块的数据。",
             items: [
                 ExtractedItem(
@@ -161,13 +161,13 @@ enum SampleData {
                     title: english ? "Q4 review" : "Q4 复盘会",
                     start: date("2026-11-19T15:00:00+08:00"),
                     end: date("2026-11-19T16:30:00+08:00"),
-                    location: english ? "3F large meeting room" : "3 楼大会议室",
-                    notes: english ? "Dial-in 728 391 045" : "线上会议号 728 391 045",
+                    location: english ? "Room 302" : "3 楼大会议室",
+                    notes: english ? "Dial-in 555 0134" : "线上会议号 728 391 045",
                     alarmMinutesBefore: 15
                 ),
                 ExtractedItem(
                     kind: .todo,
-                    title: english ? "Prepare Q4 data for your module" : "准备各自模块的 Q4 数据",
+                    title: english ? "Prepare your Q4 data" : "准备各自模块的 Q4 数据",
                     due: date("2026-11-19T15:00:00+08:00")
                 ),
             ]
@@ -186,7 +186,7 @@ enum SampleData {
                     title: english ? "Fire safety training" : "消防知识培训",
                     start: date("2026-11-20T14:00:00+08:00"),
                     end: date("2026-11-20T15:00:00+08:00"),
-                    location: english ? "2F auditorium" : "2 楼报告厅",
+                    location: english ? "2nd floor auditorium" : "2 楼报告厅",
                     inferred: ["end"]
                 ),
                 ExtractedItem(
@@ -199,7 +199,7 @@ enum SampleData {
                     title: english ? "Fire drill" : "消防疏散演练",
                     start: date("2026-11-24T10:00:00+08:00"),
                     end: date("2026-11-24T11:00:00+08:00"),
-                    location: english ? "Plaza by Building 1" : "1 号楼前广场"
+                    location: english ? "North parking lot" : "1 号楼前广场"
                 ),
             ]
         )
@@ -209,7 +209,7 @@ enum SampleData {
 
     static func manualInput(_ language: AppLanguage) -> String {
         isEnglish(language)
-            ? "Call Mr. Wang tomorrow at 10am to go over the contract, and send the revised version to legal by next Monday"
+            ? "Call Alex tomorrow at 10am to go over the contract, and send the revised version to legal by next Monday"
             : "明天上午10点和王总电话沟通合同细节，下周一前把修改版发给法务"
     }
 
@@ -220,7 +220,7 @@ enum SampleData {
             items: [
                 ExtractedItem(
                     kind: .event,
-                    title: english ? "Call Mr. Wang about the contract" : "与王总电话沟通合同细节",
+                    title: english ? "Call Alex about the contract" : "与王总电话沟通合同细节",
                     start: date("2026-11-18T10:00:00+08:00"),
                     end: date("2026-11-18T10:30:00+08:00")
                 ),
@@ -238,8 +238,8 @@ enum SampleData {
     static func agendaEvents(_ language: AppLanguage) -> [AgendaEntry] {
         let english = isEnglish(language)
         return [
-            AgendaEntry(id: "event-1", kind: .event, title: english ? "Q4 review" : "Q4 复盘会", date: moment("2026-11-19T15:00:00+08:00"), end: moment("2026-11-19T16:30:00+08:00"), isAllDay: false, hasTime: true, location: english ? "3F meeting room" : "3 楼大会议室", calendarTitle: english ? "Work" : "工作", calendarColorHex: 0xE8462E, isOverdue: false),
-            AgendaEntry(id: "event-2", kind: .event, title: english ? "Fire safety training" : "消防知识培训", date: moment("2026-11-20T14:00:00+08:00"), end: moment("2026-11-20T15:00:00+08:00"), isAllDay: false, hasTime: true, location: english ? "2F auditorium" : "2 楼报告厅", calendarTitle: english ? "Work" : "工作", calendarColorHex: 0xE8462E, isOverdue: false),
+            AgendaEntry(id: "event-1", kind: .event, title: english ? "Q4 review" : "Q4 复盘会", date: moment("2026-11-19T15:00:00+08:00"), end: moment("2026-11-19T16:30:00+08:00"), isAllDay: false, hasTime: true, location: english ? "Room 302" : "3 楼大会议室", calendarTitle: english ? "Work" : "工作", calendarColorHex: 0xE8462E, isOverdue: false),
+            AgendaEntry(id: "event-2", kind: .event, title: english ? "Fire safety training" : "消防知识培训", date: moment("2026-11-20T14:00:00+08:00"), end: moment("2026-11-20T15:00:00+08:00"), isAllDay: false, hasTime: true, location: english ? "Auditorium" : "2 楼报告厅", calendarTitle: english ? "Work" : "工作", calendarColorHex: 0xE8462E, isOverdue: false),
             AgendaEntry(id: "event-3", kind: .event, title: english ? "Product review day" : "产品评审日", date: moment("2026-11-24"), end: moment("2026-11-24"), isAllDay: true, hasTime: false, location: nil, calendarTitle: english ? "Personal" : "个人", calendarColorHex: 0x2F6BFF, isOverdue: false),
             AgendaEntry(id: "event-4", kind: .event, title: english ? "Homepage redesign sync" : "与设计师同步首页改版", date: moment("2026-11-25T10:00:00+08:00"), end: moment("2026-11-25T10:45:00+08:00"), isAllDay: false, hasTime: true, location: english ? "Online" : "线上", calendarTitle: english ? "Personal" : "个人", calendarColorHex: 0x2F6BFF, isOverdue: false),
         ]
@@ -250,7 +250,7 @@ enum SampleData {
         let work = english ? "Work" : "工作"
         let personal = english ? "Personal" : "个人"
         return [
-            AgendaEntry(id: "todo-1", kind: .todo, title: english ? "Prepare Q4 data for your module" : "准备各自模块的 Q4 数据", date: moment("2026-11-18T18:00:00+08:00"), end: nil, isAllDay: false, hasTime: true, location: nil, calendarTitle: work, calendarColorHex: 0x1F9D55, isOverdue: false),
+            AgendaEntry(id: "todo-1", kind: .todo, title: english ? "Prepare your Q4 data" : "准备各自模块的 Q4 数据", date: moment("2026-11-18T18:00:00+08:00"), end: nil, isAllDay: false, hasTime: true, location: nil, calendarTitle: work, calendarColorHex: 0x1F9D55, isOverdue: false),
             AgendaEntry(id: "todo-2", kind: .todo, title: english ? "Send the revised contract to legal" : "把合同修改版发给法务", date: moment("2026-11-19"), end: nil, isAllDay: false, hasTime: false, location: nil, calendarTitle: work, calendarColorHex: 0x1F9D55, isOverdue: false),
             AgendaEntry(id: "todo-3", kind: .todo, title: english ? "Send attendee list to admin" : "向行政部报送参训名单", date: moment("2026-11-21"), end: nil, isAllDay: false, hasTime: false, location: nil, calendarTitle: work, calendarColorHex: 0x1F9D55, isOverdue: false),
             AgendaEntry(id: "todo-4", kind: .todo, title: english ? "Write up the meeting notes" : "整理会议纪要", date: nil, end: nil, isAllDay: false, hasTime: false, location: nil, calendarTitle: personal, calendarColorHex: 0x9A9A9A, isOverdue: false),
