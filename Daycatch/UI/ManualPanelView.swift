@@ -5,6 +5,8 @@ struct ManualPanelActions {
     var paste: () -> Void = {}
     var screenshot: () -> Void = {}
     var openSettings: () -> Void = {}
+    /// 放弃这次识别结果并清空输入，从头开始
+    var discard: () -> Void = {}
 }
 
 /// ③ 菜单栏弹窗（宽 420）：输入 → ⌘↩ 识别 → 勾选 → 添加。
@@ -71,12 +73,17 @@ struct ManualPanelView: View {
                 .buttonStyle(TextLinkButtonStyle())
                 Spacer()
                 if model.isLoading {
-                    HStack(spacing: 6) {
-                        ProgressView().controlSize(.mini)
-                        Text("识别中…")
+                    HStack(spacing: 14) {
+                        HStack(spacing: 6) {
+                            ProgressView().controlSize(.mini)
+                            Text("识别中…")
+                        }
+                        .font(.system(size: 12))
+                        .foregroundStyle(Theme.textSecondary)
+                        Button("取消", action: manualActions.discard)
+                            .buttonStyle(TextLinkButtonStyle())
+                            .help("中断这次识别，清空输入重新开始（⌘.）")
                     }
-                    .font(.system(size: 12))
-                    .foregroundStyle(Theme.textSecondary)
                 } else {
                     Button("⌘↩ 识别", action: manualActions.recognize)
                         .buttonStyle(TextLinkButtonStyle())
@@ -109,10 +116,19 @@ struct ManualPanelView: View {
                 }
                 .buttonStyle(PrimaryButtonStyle(height: 42, cornerRadius: 11, fontSize: 14))
                 .disabled(!model.canAdd)
-                if model.isEditing {
-                    Text("⌘E 完成编辑")
-                        .font(.system(size: 11))
-                        .foregroundStyle(Theme.textSecondary)
+                // 和 ① 一样可以行内编辑；「取消」则直接丢掉这次结果和文字，重新开始
+                HStack(spacing: 14) {
+                    Button(model.isEditing ? "完成编辑" : "编辑") {
+                        model.isEditing.toggle()
+                    }
+                    .buttonStyle(TextLinkButtonStyle())
+                    .disabled(model.isAdding)
+                    .help(model.isEditing ? "完成编辑（⌘E）" : "修改识别出的事项（⌘E）")
+
+                    Button("取消", action: manualActions.discard)
+                        .buttonStyle(TextLinkButtonStyle())
+                        .disabled(model.isAdding)
+                        .help("放弃这次识别结果并清空输入，重新开始（⌘.）")
                 }
             }
             .padding(.top, 16)

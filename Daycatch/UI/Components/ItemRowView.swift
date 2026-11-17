@@ -16,7 +16,7 @@ struct ItemRowView: View {
             VStack(alignment: .leading, spacing: metrics.titleFontSize >= 17 ? 6 : 5) {
                 kindLine
                 if isEditing {
-                    ItemEditor(item: $row.item, metrics: metrics)
+                    ItemEditor(item: $row.item, metrics: metrics, defaultAlarmMinutes: defaultAlarmMinutes)
                 } else {
                     content
                 }
@@ -80,7 +80,7 @@ struct ItemRowView: View {
             .tracking(metrics.titleFontSize >= 17 ? -0.17 : 0)
             .fixedSize(horizontal: false, vertical: true)
 
-        let alarm = item.kind == .event ? (item.alarmMinutesBefore ?? defaultAlarmMinutes) : nil
+        let alarm = item.effectiveAlarmMinutes(defaults: item.kind == .event ? defaultAlarmMinutes : 0)
         let lines = formatter.detailLines(for: item, alarmMinutes: alarm)
         if !lines.isEmpty {
             Text(lines.joined(separator: "\n"))
@@ -104,8 +104,23 @@ struct ItemRowView: View {
 struct ItemEditor: View {
     @Binding var item: ExtractedItem
     var metrics: RowMetrics
+    var defaultAlarmMinutes: Int?
 
     private var calendar: Calendar { ItemFormatter().calendar }
+
+    /// 编辑器里的提醒候选项：-1 = 不提醒，其余为提前分钟数
+    private var alarmOptions: [DropdownPicker<Int>.Option] {
+        [
+            .init(value: ExtractedItem.alarmNone, title: "不提醒"),
+            .init(value: 0, title: item.kind == .event ? "开始时" : "截止时"),
+            .init(value: 5, title: "提前 5 分钟"),
+            .init(value: 10, title: "提前 10 分钟"),
+            .init(value: 15, title: "提前 15 分钟"),
+            .init(value: 30, title: "提前 30 分钟"),
+            .init(value: 60, title: "提前 1 小时"),
+            .init(value: 1440, title: "提前 1 天"),
+        ]
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -142,6 +157,10 @@ struct ItemEditor: View {
         }
         EditorField(placeholder: "地点", text: optionalText(\.location), fontSize: 13)
         EditorField(placeholder: "备注", text: optionalText(\.notes), fontSize: 13)
+        // 全天日程没法加提醒（和写入逻辑一致）
+        if !item.isAllDay {
+            alarmRow
+        }
     }
 
     @ViewBuilder
@@ -160,6 +179,20 @@ struct ItemEditor: View {
             }
         }
         EditorField(placeholder: "备注", text: optionalText(\.notes), fontSize: 13)
+        if item.due?.hasTime == true {
+            alarmRow
+        } else if item.due != nil {
+            Text("打开「具体时间」后可以加提醒")
+                .font(.system(size: 11))
+                .foregroundStyle(Theme.textSecondary)
+        }
+    }
+
+    private var alarmRow: some View {
+        HStack(spacing: 8) {
+            EditorLabel("提醒")
+            EditorPicker(selection: alarmBinding, options: alarmOptions, width: 130)
+        }
     }
 
     private func kindChip(_ kind: ItemKind, _ title: String) -> some View {
@@ -177,6 +210,14 @@ struct ItemEditor: View {
     }
 
     // MARK: 绑定
+
+    /// 显示的就是实际会写入的提醒；用户选了就写进 item，不再跟随默认值
+    private var alarmBinding: Binding<Int> {
+        Binding {
+            item.effectiveAlarmMinutes(defaults: item.kind == .event ? defaultAlarmMinutes : 0)
+                ?? ExtractedItem.alarmNone
+        } set: { item.alarmMinutesBefore = $0 }
+    }
 
     private var startBinding: Binding<Date> {
         Binding { item.start?.date ?? Date() } set: { item.setStart($0) }
@@ -250,5 +291,48 @@ private struct EditorField: View {
             .padding(.horizontal, 8)
             .frame(height: fontSize + 14)
             .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(Theme.fillControl))
+    }
+}
+
+/// 行内编辑器里的小下拉（提醒等），尺寸和 EditorField 对齐
+private struct EditorPicker<Value: Hashable>: View {
+    @Binding var selection: Value
+    var options: [DropdownPicker<Value>.Option]
+    var width: CGFloat = 130
+    var fontSize: CGFloat = 12
+
+    var body: some View {
+        Menu {
+            ForEach(options, id: \.self) { option in
+                Button {
+                    selection = option.value
+                } label: {
+                    if option.value == selection {
+                        Label(option.title, systemImage: "checkmark")
+                    } else {
+                        Text(option.title)
+                    }
+                }
+            }
+        } label: {
+            HStack(spacing: 6) {
+                Text(options.first { $0.value == selection }?.title ?? "请选择")
+                    .lineLimit(1)
+                Spacer(minLength: 0)
+                ChevronDownShape()
+                    .stroke(Theme.textSecondary, style: StrokeStyle(lineWidth: 1.1, lineCap: .round, lineJoin: .round))
+                    .frame(width: 8, height: 8)
+            }
+            .font(.system(size: fontSize))
+            .foregroundStyle(Theme.textPrimary)
+            .padding(.horizontal, 8)
+            .frame(width: width, height: fontSize + 14)
+            .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(Theme.fillControl))
+            .contentShape(Rectangle())
+        }
+        .menuStyle(.button)
+        .buttonStyle(.plain)
+        .menuIndicator(.hidden)
+        .fixedSize()
     }
 }

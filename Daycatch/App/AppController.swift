@@ -57,6 +57,9 @@ final class AppController {
                     openSettings: { [weak self] in
                         self?.closeManual()
                         self?.openSettings()
+                    },
+                    discard: { [weak self] in
+                        self?.manualModel.discardResults()
                     }
                 )
             )
@@ -508,6 +511,11 @@ final class AppController {
                 // 结束编辑：让焦点离开文本框，↩ 恢复为"添加"
                 (model === manualModel ? manualHost : resultHost).panel.makeFirstResponder(nil)
             }
+            return true
+        case .commandPeriod:
+            // ③ 里放弃这次识别（结果或正在进行的请求），回到输入框
+            guard model === manualModel, !model.isAdding, model.phase == .results || model.isLoading else { return false }
+            model.discardResults()
             return true
         }
     }

@@ -206,7 +206,7 @@ final class CalendarWriter {
         event.endDate = item.end?.date ?? start.addingTimeInterval(ExtractedItem.defaultEventDuration)
         event.location = item.location
         event.notes = notes(for: item, options: options)
-        if !item.isAllDay, let minutes = item.alarmMinutesBefore ?? options.defaultAlarmMinutes {
+        if !item.isAllDay, let minutes = item.effectiveAlarmMinutes(defaults: options.defaultAlarmMinutes) {
             event.addAlarm(EKAlarm(relativeOffset: TimeInterval(-minutes * 60)))
         }
         return event
@@ -224,9 +224,11 @@ final class CalendarWriter {
                 var parts = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: due.date)
                 parts.timeZone = TimeZone.current
                 reminder.dueDateComponents = parts
-                // 有具体时间才加闹钟，否则提醒事项不会通知
-                let alarmDate = due.date.addingTimeInterval(TimeInterval(-(item.alarmMinutesBefore ?? 0) * 60))
-                reminder.addAlarm(EKAlarm(absoluteDate: alarmDate))
+                // 有具体时间才加闹钟，否则提醒事项不会通知；待办默认在截止时提醒
+                if let minutes = item.effectiveAlarmMinutes(defaults: 0) {
+                    let alarmDate = due.date.addingTimeInterval(TimeInterval(-minutes * 60))
+                    reminder.addAlarm(EKAlarm(absoluteDate: alarmDate))
+                }
             } else {
                 reminder.dueDateComponents = calendar.dateComponents([.year, .month, .day], from: due.date)
             }

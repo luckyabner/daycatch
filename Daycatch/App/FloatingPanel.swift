@@ -6,6 +6,7 @@ enum PanelKeyCommand {
     case returnKey
     case commandReturn
     case commandE
+    case commandPeriod
 }
 
 /// 无边框、不激活应用的浮动面板。
@@ -60,6 +61,9 @@ final class FloatingPanel: NSPanel {
             return .commandReturn
         case (14, [.command]):
             return .commandE
+        case (47, [.command]):
+            // ⌘.：macOS 惯用的「取消」
+            return .commandPeriod
         case (_, []) where isReturn:
             // 正在文本框里输入时，↩ 交给文本框（换行 / 提交编辑）
             if firstResponder is NSText { return nil }

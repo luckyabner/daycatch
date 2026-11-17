@@ -55,6 +55,31 @@ final class ItemFormatterTests: XCTestCase {
         XCTAssertEqual(formatter.alarmText(15), "提前 15 分钟提醒")
         XCTAssertEqual(formatter.alarmText(60), "提前 1 小时提醒")
         XCTAssertEqual(formatter.alarmText(1440), "提前 1 天提醒")
+        // 待办在截止时刻提醒
+        XCTAssertEqual(formatter.alarmText(0, isTodo: true), "截止时提醒")
+        XCTAssertEqual(formatter.alarmText(30, isTodo: true), "提前 30 分钟提醒")
+    }
+
+    func testEffectiveAlarmMinutesFollowsDefaultUnlessEdited() {
+        var item = event(shanghaiDate(2026, 11, 19, 15), shanghaiDate(2026, 11, 19, 16, 30))
+        // AI 没给提醒 → 跟随设置里的默认值
+        XCTAssertEqual(item.effectiveAlarmMinutes(defaults: 15), 15)
+        XCTAssertNil(item.effectiveAlarmMinutes(defaults: nil))
+        // 编辑器里选具体时间
+        item.alarmMinutesBefore = 30
+        XCTAssertEqual(item.effectiveAlarmMinutes(defaults: 15), 30)
+        // 编辑器里选「不提醒」：覆盖默认值
+        item.alarmMinutesBefore = ExtractedItem.alarmNone
+        XCTAssertNil(item.effectiveAlarmMinutes(defaults: 15))
+    }
+
+    func testTodoDetailLinesShowAlarm() {
+        let todo = ExtractedItem(kind: .todo, title: "x", due: ItemDate(date: shanghaiDate(2026, 11, 19, 15), hasTime: true))
+        XCTAssertEqual(formatter.detailLines(for: todo, alarmMinutes: 0), ["15:00 前完成", "截止时提醒"])
+        XCTAssertEqual(formatter.detailLines(for: todo, alarmMinutes: nil), ["15:00 前完成"])
+        // 只有日期没有时间时不写闹钟，也不显示提醒
+        let untimed = ExtractedItem(kind: .todo, title: "x", due: ItemDate(date: shanghaiDate(2026, 11, 21), hasTime: false))
+        XCTAssertEqual(formatter.detailLines(for: untimed, alarmMinutes: 0), ["当天截止"])
     }
 
     func testInferredWarnings() {

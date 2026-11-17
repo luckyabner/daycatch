@@ -32,6 +32,14 @@ enum DebugSnapshots {
         let emptyManual = RecognitionModel(source: .manual)
         save(ManualPanelView(model: emptyManual, actions: PanelActions(), manualActions: ManualPanelActions()).daycatchStyle(accent: accent), "3-manual-empty", directory)
 
+        let manualEditing = RecognitionModel(source: .manual)
+        manualEditing.eventCalendarTitle = "工作"
+        manualEditing.defaultAlarmMinutes = 15
+        manualEditing.inputText = manual.inputText
+        manualEditing.apply(SampleData.manual)
+        manualEditing.isEditing = true
+        save(ManualPanelView(model: manualEditing, actions: PanelActions(), manualActions: ManualPanelActions()).daycatchStyle(accent: accent), "3-manual-editing", directory)
+
         let failed = RecognitionModel(source: .selection)
         failed.phase = .notice(AppController.notice(for: AIError.missingAPIKey))
         save(ResultPanelView(model: failed, actions: PanelActions(), footerHint: "⌘E 编辑 · esc 关闭").daycatchStyle(accent: accent), "1-selection-error", directory)

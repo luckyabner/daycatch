@@ -50,7 +50,11 @@ struct ItemFormatter: Sendable {
             var first = [dueText(item)]
             if let location = item.location { first.append(location) }
             lines.append(first.joined(separator: " · "))
-            if let notes = item.notes { lines.append(notes) }
+            var second: [String] = []
+            if let notes = item.notes { second.append(notes) }
+            // 待办只有具体到时间才会写闹钟
+            if item.due?.hasTime == true, let alarmMinutes { second.append(alarmText(alarmMinutes, isTodo: true)) }
+            if !second.isEmpty { lines.append(second.joined(separator: " · ")) }
         }
         return lines
     }
@@ -73,8 +77,8 @@ struct ItemFormatter: Sendable {
         return due.hasTime ? "\(time(due.date)) 前完成" : "当天截止"
     }
 
-    func alarmText(_ minutes: Int) -> String {
-        if minutes == 0 { return "开始时提醒" }
+    func alarmText(_ minutes: Int, isTodo: Bool = false) -> String {
+        if minutes == 0 { return isTodo ? "截止时提醒" : "开始时提醒" }
         if minutes % 1440 == 0 { return "提前 \(minutes / 1440) 天提醒" }
         if minutes % 60 == 0 { return "提前 \(minutes / 60) 小时提醒" }
         return "提前 \(minutes) 分钟提醒"

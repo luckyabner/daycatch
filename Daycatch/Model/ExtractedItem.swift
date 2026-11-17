@@ -81,6 +81,15 @@ struct ExtractionResult: Sendable, Equatable {
 extension ExtractedItem {
     static let defaultEventDuration: TimeInterval = 60 * 60
 
+    /// 编辑器里明确选了「不提醒」：nil 表示跟随设置里的默认提醒
+    static let alarmNone = -1
+
+    /// 实际会写入的提醒（分钟）；nil 表示不提醒
+    func effectiveAlarmMinutes(defaults: Int?) -> Int? {
+        guard let explicit = alarmMinutesBefore else { return defaults }
+        return explicit == Self.alarmNone ? nil : max(0, explicit)
+    }
+
     /// 改开始时间时保持原有时长。
     mutating func setStart(_ date: Date) {
         let duration = eventDuration

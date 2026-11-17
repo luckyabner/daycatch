@@ -124,6 +124,14 @@ final class RecognitionModel {
         addError = nil
     }
 
+    /// ③ 「取消」：丢掉这次识别结果并清空输入框，从头开始；
+    /// 正在识别时也用它中断请求
+    func discardResults() {
+        reset()
+        inputText = ""
+        focusInputToken += 1
+    }
+
     func toggle(_ id: UUID) {
         guard let index = rows.firstIndex(where: { $0.id == id }) else { return }
         rows[index].isChecked.toggle()
