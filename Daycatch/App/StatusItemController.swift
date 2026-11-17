@@ -56,23 +56,13 @@ final class StatusItemController: NSObject {
         onOpenSettings?()
     }
 
-    /// 设计稿里的日历图标：rect(3.5,5,17,15.5,rx 3.5) + 横线 y=10 + 两个挂钩
+    /// 设计稿 B1 图标（取景框 + 日历页），18pt 模板图，深浅色菜单栏自动适配
     static func makeIcon() -> NSImage {
-        let image = NSImage(size: NSSize(width: 16, height: 16), flipped: true) { rect in
-            let s = rect.width / 24
-            NSColor.black.setStroke()
-            let body = NSBezierPath(roundedRect: NSRect(x: 3.5 * s, y: 5 * s, width: 17 * s, height: 15.5 * s), xRadius: 3.5 * s, yRadius: 3.5 * s)
-            body.lineWidth = 1.8 * s
-            body.stroke()
-            let lines = NSBezierPath()
-            lines.move(to: NSPoint(x: 3.5 * s, y: 10 * s)); lines.line(to: NSPoint(x: 20.5 * s, y: 10 * s))
-            lines.move(to: NSPoint(x: 8 * s, y: 3 * s)); lines.line(to: NSPoint(x: 8 * s, y: 7 * s))
-            lines.move(to: NSPoint(x: 16 * s, y: 3 * s)); lines.line(to: NSPoint(x: 16 * s, y: 7 * s))
-            lines.lineWidth = 1.8 * s
-            lines.lineCapStyle = .round
-            lines.stroke()
-            return true
-        }
+        // imageset 已设为 Template Image；资源缺失时退回系统日历符号，保证菜单栏仍有可点图标
+        // NSImage(named:) 返回缓存实例，copy 一份再改 size / isTemplate
+        let named = NSImage(named: "MenuBarIcon")?.copy() as? NSImage
+        let image = named ?? NSImage(systemSymbolName: "calendar", accessibilityDescription: nil) ?? NSImage()
+        image.size = NSSize(width: 18, height: 18)
         image.isTemplate = true
         return image
     }

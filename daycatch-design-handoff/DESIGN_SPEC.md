@@ -117,3 +117,11 @@
 ```
 
 `inferred` 列出由 AI 推断、不是原文明确给出的字段（如 `["end"]`），界面据此显示 warning 提示。请求时传入当前日期时间和时区。
+
+## 7. 图标（方案 B1：取景框 + 日历页）
+
+- `icon/AppIcon.appiconset/`：直接拖进 Xcode 的 Assets.xcassets 替换 AppIcon（16–512 @1x/@2x，已含 macOS 风格投影；16/32/64 px 用了简化版图形，保证小尺寸清晰）
+- `icon/AppIcon-1024.png`：1024 母版
+- `icon/svg/`：各尺寸矢量源文件（large / v64 / v32 / v16）
+- `icon/MenuBarIconTemplate*.png|.svg`：菜单栏单色模板图标（18pt），在 Assets 中设为 **Render As: Template Image**，系统会自动适配浅色 / 深色菜单栏
+- 图标配色：白底 `#FFFFFF`，线条 `#2A2A2A`，日历头 `#E8462E`

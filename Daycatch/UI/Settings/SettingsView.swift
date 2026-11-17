@@ -229,10 +229,14 @@ private struct AISection: View {
             SettingsRow {
                 Text("API Key")
             } control: {
+                // 这一行的右侧控件都是固定宽度，必须声明 fixedSize：否则窗口变窄时
+                // SwiftUI 会先压缩「测试」这串弹性文字（先掉行、再被压成 0 宽直接消失）
                 HStack(spacing: 10) {
                     testStatus
                     Button("测试") { runTest() }
                         .buttonStyle(TextLinkButtonStyle())
+                        .lineLimit(1)
+                        .fixedSize()
                         .disabled(testState == .running)
                     SecretTextField(placeholder: "粘贴 API Key", text: $apiKey, isRevealed: $isKeyRevealed, width: 240)
                         .onChange(of: apiKey) { _, value in
@@ -240,6 +244,7 @@ private struct AISection: View {
                             testState = .idle
                         }
                 }
+                .fixedSize(horizontal: true, vertical: false)
             }
             SettingsRow {
                 Text("模型")
@@ -277,20 +282,20 @@ private struct AISection: View {
         case .running:
             HStack(spacing: 6) {
                 ProgressView().controlSize(.mini)
-                Text("测试中…").foregroundStyle(Theme.textSecondary)
+                Text("测试中…").foregroundStyle(Theme.textSecondary).lineLimit(1)
             }
             .font(.system(size: 12))
         case .success(let message):
             HStack(spacing: 6) {
                 Circle().fill(Theme.success).frame(width: 7, height: 7)
-                Text("连接正常").foregroundStyle(Theme.successText)
+                Text("连接正常").foregroundStyle(Theme.successText).lineLimit(1)
             }
             .font(.system(size: 12, weight: .medium))
             .help(message)
         case .failure:
             HStack(spacing: 6) {
                 Circle().fill(Theme.error).frame(width: 7, height: 7)
-                Text("连接失败").foregroundStyle(Theme.error)
+                Text("连接失败").foregroundStyle(Theme.error).lineLimit(1)
             }
             .font(.system(size: 12, weight: .medium))
         }

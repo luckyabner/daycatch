@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Daycatch · 图标方案 B 优化</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;font-family:-apple-system,"SF Pro Text","PingFang SC","Helvetica Neue",sans-serif;color:#111111;-webkit-font-smoothing:antialiased}
+a{color:#111111}a:hover{color:#555555}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; background: #E7E6E3; padding: 72px 80px; display: flex; flex-direction: column; gap: 56px">
+
+  <div style="display: flex; justify-content: space-between; align-items: flex-end">
+    <div>
+      <div style="font-size: 12px; color: #6B6B6B">Daycatch · 方案 B 优化</div>
+      <div style="font-size: 28px; font-weight: 600; letter-spacing: -0.02em; margin-top: 6px">取景框里放进“日程”，而不是一个点</div>
+    </div>
+    <div style="font-size: 12px; color: #6B6B6B">应用图标 · 64 / 32 / 16 px · 菜单栏单色图标（浅色 / 深色）</div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px">
+
+    <!-- B1：日历页 -->
+    <div style="background: #FFFFFF; border-radius: 16px; padding: 32px; display: flex; flex-direction: column; align-items: center; gap: 28px">
+      <div style="align-self: stretch"><div style="font-size: 12px; color: #6B6B6B">B1</div><div style="font-size: 17px; font-weight: 600; margin-top: 4px">框住一页日历，已添加 ✓</div></div>
+      <svg width="260" height="260" viewBox="0 0 1024 1024" role="img" aria-label="B1 应用图标" style="filter: drop-shadow(0 14px 22px rgba(0,0,0,0.14))">
+        <rect x="100" y="100" width="824" height="824" rx="185" fill="#FFFFFF" stroke="#E4E3E0" stroke-width="4"></rect>
+        <g fill="none" stroke="#2A2A2A" stroke-width="44" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M260 390 V300 Q260 260 300 260 H390"></path><path d="M634 260 H724 Q764 260 764 300 V390"></path><path d="M764 634 V724 Q764 764 724 764 H634"></path><path d="M390 764 H300 Q260 764 260 724 V634"></path>
+        </g>
+        <path d="M372 470 V428 Q372 380 420 380 H604 Q652 380 652 428 V470 Z" fill="{{accent}}"></path>
+        <rect x="372" y="380" width="280" height="264" rx="48" fill="none" stroke="#2A2A2A" stroke-width="32"></rect>
+        <path d="M442 560 L490 604 L584 510" fill="none" stroke="#2A2A2A" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+      <div style="display: flex; align-items: flex-end; gap: 24px" aria-hidden="true">
+        <svg width="64" height="64" viewBox="0 0 1024 1024"><rect x="100" y="100" width="824" height="824" rx="185" fill="#FFFFFF" stroke="#D9D8D5" stroke-width="12"></rect><g fill="none" stroke="#2A2A2A" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"><path d="M260 390 V300 Q260 260 300 260 H390"></path><path d="M634 260 H724 Q764 260 764 300 V390"></path><path d="M764 634 V724 Q764 764 724 764 H634"></path><path d="M390 764 H300 Q260 764 260 724 V634"></path></g><path d="M372 470 V428 Q372 380 420 380 H604 Q652 380 652 428 V470 Z" fill="{{accent}}"></path><rect x="372" y="380" width="280" height="264" rx="48" fill="none" stroke="#2A2A2A" stroke-width="40"></rect><path d="M442 560 L490 604 L584 510" fill="none" stroke="#2A2A2A" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <svg width="32" height="32" viewBox="0 0 1024 1024"><rect x="100" y="100" width="824" height="824" rx="185" fill="#FFFFFF" stroke="#D9D8D5" stroke-width="24"></rect><g fill="none" stroke="#2A2A2A" stroke-width="70" stroke-linecap="round" stroke-linejoin="round"><path d="M260 390 V300 Q260 260 300 260 H390"></path><path d="M634 260 H724 Q764 260 764 300 V390"></path><path d="M764 634 V724 Q764 764 724 764 H634"></path><path d="M390 764 H300 Q260 764 260 724 V634"></path></g><path d="M372 490 V428 Q372 380 420 380 H604 Q652 380 652 428 V490 Z" fill="{{accent}}"></path><rect x="372" y="380" width="280" height="264" rx="48" fill="none" stroke="#2A2A2A" stroke-width="56"></rect></svg>
+        <svg width="16" height="16" viewBox="0 0 1024 1024"><rect x="100" y="100" width="824" height="824" rx="185" fill="#FFFFFF" stroke="#CFCECB" stroke-width="48"></rect><g fill="none" stroke="#2A2A2A" stroke-width="96" stroke-linecap="round" stroke-linejoin="round"><path d="M260 420 V260 H420"></path><path d="M764 604 V764 H604"></path></g><rect x="372" y="380" width="280" height="264" rx="48" fill="{{accent}}"></rect></svg>
+      </div>
+      <div style="display: flex; gap: 10px" aria-hidden="true">
+        <div style="width: 120px; height: 28px; border-radius: 6px; background: #F6F6F5; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5V3h4.5M16.5 3H21v4.5M21 16.5V21h-4.5M7.5 21H3v-4.5"></path><rect x="8" y="8.5" width="8" height="7.5" rx="1.6"></rect><path d="M8 11h8"></path></svg>17:43</div>
+        <div style="width: 120px; height: 28px; border-radius: 6px; background: #2A2A2A; color: #FFFFFF; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5V3h4.5M16.5 3H21v4.5M21 16.5V21h-4.5M7.5 21H3v-4.5"></path><rect x="8" y="8.5" width="8" height="7.5" rx="1.6"></rect><path d="M8 11h8"></path></svg>17:43</div>
+      </div>
+    </div>
+
+    <!-- B2：日程块 -->
+    <div style="background: #FFFFFF; border-radius: 16px; padding: 32px; display: flex; flex-direction: column; align-items: center; gap: 28px">
+      <div style="align-self: stretch"><div style="font-size: 12px; color: #6B6B6B">B2</div><div style="font-size: 17px; font-weight: 600; margin-top: 4px">框住时间线上的一个日程块</div></div>
+      <svg width="260" height="260" viewBox="0 0 1024 1024" role="img" aria-label="B2 应用图标" style="filter: drop-shadow(0 14px 22px rgba(0,0,0,0.14))">
+        <rect x="100" y="100" width="824" height="824" rx="185" fill="#FFFFFF" stroke="#E4E3E0" stroke-width="4"></rect>
+        <g fill="none" stroke="#2A2A2A" stroke-width="44" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M260 390 V300 Q260 260 300 260 H390"></path><path d="M634 260 H724 Q764 260 764 300 V390"></path><path d="M764 634 V724 Q764 764 724 764 H634"></path><path d="M390 764 H300 Q260 764 260 724 V634"></path>
+        </g>
+        <rect x="360" y="384" width="304" height="28" rx="14" fill="#D6D5D2"></rect>
+        <rect x="360" y="450" width="304" height="124" rx="36" fill="{{accent}}"></rect>
+        <rect x="400" y="494" width="150" height="26" rx="13" fill="#FFFFFF"></rect>
+        <rect x="360" y="612" width="220" height="28" rx="14" fill="#D6D5D2"></rect>
+      </svg>
+      <div style="display: flex; align-items: flex-end; gap: 24px" aria-hidden="true">
+        <svg width="64" height="64" viewBox="0 0 1024 1024"><rect x="100" y="100" width="824" height="824" rx="185" fill="#FFFFFF" stroke="#D9D8D5" stroke-width="12"></rect><g fill="none" stroke="#2A2A2A" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"><path d="M260 390 V300 Q260 260 300 260 H390"></path><path d="M634 260 H724 Q764 260 764 300 V390"></path><path d="M764 634 V724 Q764 764 724 764 H634"></path><path d="M390 764 H300 Q260 764 260 724 V634"></path></g><rect x="360" y="380" width="304" height="34" rx="17" fill="#CFCECB"></rect><rect x="360" y="450" width="304" height="124" rx="36" fill="{{accent}}"></rect><rect x="360" y="610" width="220" height="34" rx="17" fill="#CFCECB"></rect></svg>
+        <svg width="32" height="32" viewBox="0 0 1024 1024"><rect x="100" y="100" width="824" height="824" rx="185" fill="#FFFFFF" stroke="#D9D8D5" stroke-width="24"></rect><g fill="none" stroke="#2A2A2A" stroke-width="70" stroke-linecap="round" stroke-linejoin="round"><path d="M260 390 V300 Q260 260 300 260 H390"></path><path d="M634 260 H724 Q764 260 764 300 V390"></path><path d="M764 634 V724 Q764 764 724 764 H634"></path><path d="M390 764 H300 Q260 764 260 724 V634"></path></g><rect x="360" y="430" width="304" height="164" rx="48" fill="{{accent}}"></rect></svg>
+        <svg width="16" height="16" viewBox="0 0 1024 1024"><rect x="100" y="100" width="824" height="824" rx="185" fill="#FFFFFF" stroke="#CFCECB" stroke-width="48"></rect><g fill="none" stroke="#2A2A2A" stroke-width="96" stroke-linecap="round" stroke-linejoin="round"><path d="M260 420 V260 H420"></path><path d="M764 604 V764 H604"></path></g><rect x="350" y="420" width="324" height="184" rx="60" fill="{{accent}}"></rect></svg>
+      </div>
+      <div style="display: flex; gap: 10px" aria-hidden="true">
+        <div style="width: 120px; height: 28px; border-radius: 6px; background: #F6F6F5; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5V3h4.5M16.5 3H21v4.5M21 16.5V21h-4.5M7.5 21H3v-4.5"></path><rect x="7.5" y="9.5" width="9" height="5" rx="1.5" fill="#111111" stroke="none"></rect></svg>17:43</div>
+        <div style="width: 120px; height: 28px; border-radius: 6px; background: #2A2A2A; color: #FFFFFF; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5V3h4.5M16.5 3H21v4.5M21 16.5V21h-4.5M7.5 21H3v-4.5"></path><rect x="7.5" y="9.5" width="9" height="5" rx="1.5" fill="#FFFFFF" stroke="none"></rect></svg>17:43</div>
+      </div>
+    </div>
+
+    <!-- B3：勾选 -->
+    <div style="background: #FFFFFF; border-radius: 16px; padding: 32px; display: flex; flex-direction: column; align-items: center; gap: 28px">
+      <div style="align-self: stretch"><div style="font-size: 12px; color: #6B6B6B">B3</div><div style="font-size: 17px; font-weight: 600; margin-top: 4px">框住即完成：圆形勾选</div></div>
+      <svg width="260" height="260" viewBox="0 0 1024 1024" role="img" aria-label="B3 应用图标" style="filter: drop-shadow(0 14px 22px rgba(0,0,0,0.14))">
+        <rect x="100" y="100" width="824" height="824" rx="185" fill="#FFFFFF" stroke="#E4E3E0" stroke-width="4"></rect>
+        <g fill="none" stroke="#2A2A2A" stroke-width="44" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M260 390 V300 Q260 260 300 260 H390"></path><path d="M634 260 H724 Q764 260 764 300 V390"></path><path d="M764 634 V724 Q764 764 724 764 H634"></path><path d="M390 764 H300 Q260 764 260 724 V634"></path>
+        </g>
+        <circle cx="512" cy="512" r="140" fill="{{accent}}"></circle>
+        <path d="M445 515 L495 563 L585 465" fill="none" stroke="#FFFFFF" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+      <div style="display: flex; align-items: flex-end; gap: 24px" aria-hidden="true">
+        <svg width="64" height="64" viewBox="0 0 1024 1024"><rect x="100" y="100" width="824" height="824" rx="185" fill="#FFFFFF" stroke="#D9D8D5" stroke-width="12"></rect><g fill="none" stroke="#2A2A2A" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"><path d="M260 390 V300 Q260 260 300 260 H390"></path><path d="M634 260 H724 Q764 260 764 300 V390"></path><path d="M764 634 V724 Q764 764 724 764 H634"></path><path d="M390 764 H300 Q260 764 260 724 V634"></path></g><circle cx="512" cy="512" r="140" fill="{{accent}}"></circle><path d="M445 515 L495 563 L585 465" fill="none" stroke="#FFFFFF" stroke-width="48" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <svg width="32" height="32" viewBox="0 0 1024 1024"><rect x="100" y="100" width="824" height="824" rx="185" fill="#FFFFFF" stroke="#D9D8D5" stroke-width="24"></rect><g fill="none" stroke="#2A2A2A" stroke-width="70" stroke-linecap="round" stroke-linejoin="round"><path d="M260 390 V300 Q260 260 300 260 H390"></path><path d="M634 260 H724 Q764 260 764 300 V390"></path><path d="M764 634 V724 Q764 764 724 764 H634"></path><path d="M390 764 H300 Q260 764 260 724 V634"></path></g><circle cx="512" cy="512" r="150" fill="{{accent}}"></circle><path d="M440 515 L495 568 L590 462" fill="none" stroke="#FFFFFF" stroke-width="64" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <svg width="16" height="16" viewBox="0 0 1024 1024"><rect x="100" y="100" width="824" height="824" rx="185" fill="#FFFFFF" stroke="#CFCECB" stroke-width="48"></rect><g fill="none" stroke="#2A2A2A" stroke-width="96" stroke-linecap="round" stroke-linejoin="round"><path d="M260 420 V260 H420"></path><path d="M764 604 V764 H604"></path></g><circle cx="512" cy="512" r="170" fill="{{accent}}"></circle></svg>
+      </div>
+      <div style="display: flex; gap: 10px" aria-hidden="true">
+        <div style="width: 120px; height: 28px; border-radius: 6px; background: #F6F6F5; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5V3h4.5M16.5 3H21v4.5M21 16.5V21h-4.5M7.5 21H3v-4.5"></path><path d="M8.5 12.2l2.4 2.3 4.6-4.8" stroke-width="2"></path></svg>17:43</div>
+        <div style="width: 120px; height: 28px; border-radius: 6px; background: #2A2A2A; color: #FFFFFF; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5V3h4.5M16.5 3H21v4.5M21 16.5V21h-4.5M7.5 21H3v-4.5"></path><path d="M8.5 12.2l2.4 2.3 4.6-4.8" stroke-width="2"></path></svg>17:43</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#E8462E","options":["#E8462E","#2F6BFF","#111111","#1F9D55"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#E8462E' };
+  }
+}
+</script>
+</body>
+</html>
