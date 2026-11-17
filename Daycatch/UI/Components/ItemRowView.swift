@@ -195,7 +195,12 @@ struct ItemEditor: View {
     private var alarmRow: some View {
         HStack(spacing: 8) {
             EditorLabel(t.alertLabel, width: labelWidth)
-            EditorPicker(selection: alarmBinding, options: alarmOptions, width: t.isEnglish ? 170 : 130)
+            DropdownPicker(
+                selection: alarmBinding,
+                options: alarmOptions,
+                width: t.isEnglish ? 170 : 130,
+                style: .compact(fontSize: 12)
+            )
         }
     }
 
@@ -304,45 +309,3 @@ private struct EditorField: View {
     }
 }
 
-/// 行内编辑器里的小下拉（提醒等），尺寸和 EditorField 对齐
-private struct EditorPicker<Value: Hashable>: View {
-    @Binding var selection: Value
-    var options: [DropdownPicker<Value>.Option]
-    var width: CGFloat = 130
-    var fontSize: CGFloat = 12
-
-    var body: some View {
-        Menu {
-            ForEach(options, id: \.self) { option in
-                Button {
-                    selection = option.value
-                } label: {
-                    if option.value == selection {
-                        Label(option.title, systemImage: "checkmark")
-                    } else {
-                        Text(option.title)
-                    }
-                }
-            }
-        } label: {
-            HStack(spacing: 6) {
-                Text(options.first { $0.value == selection }?.title ?? Localization.strings.choose)
-                    .lineLimit(1)
-                Spacer(minLength: 0)
-                ChevronDownShape()
-                    .stroke(Theme.textSecondary, style: StrokeStyle(lineWidth: 1.1, lineCap: .round, lineJoin: .round))
-                    .frame(width: 8, height: 8)
-            }
-            .font(.system(size: fontSize))
-            .foregroundStyle(Theme.textPrimary)
-            .padding(.horizontal, 8)
-            .frame(width: width, height: fontSize + 14)
-            .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(Theme.fillControl))
-            .contentShape(Rectangle())
-        }
-        .menuStyle(.button)
-        .buttonStyle(.plain)
-        .menuIndicator(.hidden)
-        .fixedSize()
-    }
-}

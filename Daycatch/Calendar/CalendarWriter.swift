@@ -59,6 +59,16 @@ struct CalendarChoice: Identifiable, Hashable {
     var id: String
     var title: String
     var color: NSColor?
+    /// 所属账号（EKSource.title，如 iCloud、Gmail 地址），用于区分同名日历
+    var account: String?
+}
+
+extension Array where Element == CalendarChoice {
+    /// 多个账号、或存在同名日历（比如两个都叫「个人」）时，下拉里必须标出账号才分得清。
+    var needsAccountLabels: Bool {
+        if Set(compactMap(\.account)).count > 1 { return true }
+        return Set(map(\.title)).count < count
+    }
 }
 
 /// EventKit 写入：日程 → EKEvent，待办 → EKReminder。
@@ -115,14 +125,24 @@ final class CalendarWriter {
         guard Self.hasEventAccess else { return [] }
         return store.calendars(for: .event)
             .filter(\.allowsContentModifications)
-            .map { CalendarChoice(id: $0.calendarIdentifier, title: $0.title, color: $0.color) }
+            .map(choice(for:))
     }
 
     func reminderLists() -> [CalendarChoice] {
         guard Self.hasReminderAccess else { return [] }
         return store.calendars(for: .reminder)
             .filter(\.allowsContentModifications)
-            .map { CalendarChoice(id: $0.calendarIdentifier, title: $0.title, color: $0.color) }
+            .map(choice(for:))
+    }
+
+    private func choice(for calendar: EKCalendar) -> CalendarChoice {
+        let account = calendar.source?.title.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return CalendarChoice(
+            id: calendar.calendarIdentifier,
+            title: calendar.title,
+            color: calendar.color,
+            account: account.isEmpty ? nil : account
+        )
     }
 
     /// 按 ID → 名为"工作"的日历 → 系统默认 的顺序选择。

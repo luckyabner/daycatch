@@ -47,56 +47,6 @@ struct SettingsNote: View {
     }
 }
 
-/// 无边框下拉框：#F3F3F2 底色、隐藏系统箭头、右侧 12px 处的自定义箭头。
-struct DropdownPicker<Value: Hashable>: View {
-    struct Option: Hashable {
-        var value: Value
-        var title: String
-    }
-
-    @Binding var selection: Value
-    var options: [Option]
-    var width: CGFloat
-    var placeholder: String? = nil
-
-    var body: some View {
-        Menu {
-            ForEach(options, id: \.self) { option in
-                Button {
-                    selection = option.value
-                } label: {
-                    if option.value == selection {
-                        Label(option.title, systemImage: "checkmark")
-                    } else {
-                        Text(option.title)
-                    }
-                }
-            }
-        } label: {
-            Text(options.first { $0.value == selection }?.title ?? placeholder ?? Localization.strings.choose)
-                .font(.system(size: 13))
-                .foregroundStyle(Theme.textPrimary)
-                .lineLimit(1)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.leading, 10)
-                .padding(.trailing, 32)
-                .frame(width: width, height: 30)
-                .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Theme.fillControl))
-                .overlay(alignment: .trailing) {
-                    ChevronDownShape()
-                        .stroke(Theme.textSecondary, style: StrokeStyle(lineWidth: 1.1, lineCap: .round, lineJoin: .round))
-                        .frame(width: 10, height: 10)
-                        .padding(.trailing, 12)
-                }
-                .contentShape(Rectangle())
-        }
-        .menuStyle(.button)
-        .buttonStyle(.plain)
-        .menuIndicator(.hidden)
-        .fixedSize()
-    }
-}
-
 /// 无边框输入框（#F3F3F2，高 30，圆角 8）
 struct FlatTextField: View {
     var placeholder: String

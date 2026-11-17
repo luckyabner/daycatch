@@ -369,8 +369,7 @@ private struct TargetsSection: View {
                             get: { settings.eventCalendarID ?? calendars.first(where: { isWorkCalendar($0.title) })?.id ?? "" },
                             set: { settings.eventCalendarID = $0 }
                         ),
-                        options: calendars.map { .init(value: $0.id, title: $0.title) },
-                        width: 200,
+                        options: calendarOptions(calendars),
                         placeholder: t.systemDefault
                     )
                 } else {
@@ -389,8 +388,7 @@ private struct TargetsSection: View {
                             get: { settings.reminderListID ?? lists.first(where: { isWorkCalendar($0.title) })?.id ?? "" },
                             set: { settings.reminderListID = $0 }
                         ),
-                        options: lists.map { .init(value: $0.id, title: $0.title) },
-                        width: 200,
+                        options: calendarOptions(lists),
                         placeholder: t.systemDefault
                     )
                 } else {
@@ -417,6 +415,20 @@ private struct TargetsSection: View {
     /// 和 CalendarWriter 的兜底逻辑一致：优先选名为「工作 / Work」的列表
     private func isWorkCalendar(_ title: String) -> Bool {
         title == "工作" || title.lowercased() == "work"
+    }
+
+    /// 多个账号（或同名日历）时，把账号作为菜单里的第二行，避免两个「个人」分不清
+    private func calendarOptions(_ choices: [CalendarChoice]) -> [DropdownPicker<String>.Option] {
+        let showsAccount = choices.needsAccountLabels
+        return choices.map { choice in
+            let account = choice.account
+            let hidesAccount = account?.localizedCaseInsensitiveCompare(choice.title) == .orderedSame
+            return .init(
+                value: choice.id,
+                title: choice.title,
+                detail: showsAccount && !hidesAccount ? account : nil
+            )
+        }
     }
 
     private var grantButton: some View {
