@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Daycatch · 设置</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;font-family:-apple-system,"SF Pro Text","PingFang SC","Helvetica Neue",sans-serif;color:#111111;-webkit-font-smoothing:antialiased}
+a{color:#111111}a:hover{color:#555555}
+button,input,select{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; position: relative; overflow: hidden; background: #E7E6E3; font-size: 13px">
+
+  <div style="position: absolute; left: 260px; top: 30px; width: 920px; height: 840px; background: #FFFFFF; border-radius: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 24px 60px rgba(0,0,0,0.12); display: flex; overflow: hidden">
+
+    <nav aria-label="设置分类" style="width: 200px; border-right: 1px solid #ECECEA; padding: 16px 12px; box-sizing: border-box; display: flex; flex-direction: column; gap: 2px">
+      <div style="display: flex; gap: 8px; padding: 0 6px 20px" aria-hidden="true"><span style="width: 12px; height: 12px; border-radius: 6px; background: #FF5F57"></span><span style="width: 12px; height: 12px; border-radius: 6px; background: #FEBC2E"></span><span style="width: 12px; height: 12px; border-radius: 6px; background: #28C840"></span></div>
+      <div style="padding: 0 12px 16px; font-size: 15px; font-weight: 600; letter-spacing: -0.01em">Daycatch</div>
+      <a href="#general" style="display: block; padding: 8px 12px; border-radius: 8px; background: #F3F3F2; text-decoration: none; font-weight: 600">通用</a>
+      <a href="#ai" style="display: block; padding: 8px 12px; border-radius: 8px; color: #4A4A4A; text-decoration: none">AI 服务</a>
+      <a href="#targets" style="display: block; padding: 8px 12px; border-radius: 8px; color: #4A4A4A; text-decoration: none">日历</a>
+      <a href="#privacy" style="display: block; padding: 8px 12px; border-radius: 8px; color: #4A4A4A; text-decoration: none">隐私</a>
+    </nav>
+
+    <div style="flex: 1; padding: 36px 56px; box-sizing: border-box; display: flex; flex-direction: column; gap: 28px; overflow: hidden">
+
+      <section id="general" style="display: flex; flex-direction: column">
+        <div style="font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 14px">快捷键</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #ECECEA"><span>识别选中文字</span><button style="height: 28px; padding: 0 12px; border-radius: 999px; border: 0; background: #F3F3F2; font-size: 12px">⌥ Space</button></div>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #ECECEA"><span>截图识别</span><button style="height: 28px; padding: 0 12px; border-radius: 999px; border: 0; background: #F3F3F2; font-size: 12px">⌥ ⇧ S</button></div>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #ECECEA"><span>打开输入框</span><button style="height: 28px; padding: 0 12px; border-radius: 999px; border: 0; background: #F3F3F2; font-size: 12px">⌥ ⇧ Space</button></div>
+        <div style="font-size: 12px; color: #6B6B6B; margin-top: 10px; line-height: 1.6">选中识别需开启“辅助功能”权限，读取失败时自动改用 ⌘C。</div>
+      </section>
+
+      <section id="ai" style="display: flex; flex-direction: column">
+        <div style="font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 14px">AI 服务</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #ECECEA">
+          <label for="provider">服务商</label>
+          <div style="position: relative; width: 240px"><select id="provider" style="appearance: none; -webkit-appearance: none; width: 100%; height: 30px; border-radius: 8px; border: 0; background: #F3F3F2; font-size: 13px; padding: 0 32px 0 10px"><option>Claude（Anthropic）</option><option>OpenAI</option><option>DeepSeek</option><option>通义千问</option><option>自定义（OpenAI 兼容）</option></select><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#6B6B6B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="position: absolute; right: 12px; top: 10px; pointer-events: none"><path d="M6 9l6 6 6-6"></path></svg></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #ECECEA">
+          <label for="apikey">API Key</label>
+          <div style="display: flex; gap: 10px; align-items: center">
+            <a href="#" style="font-size: 12px; color: #6B6B6B">测试</a>
+            <input id="apikey" type="password" value="sk-xxxxxxxxxxxxxxxx" style="height: 30px; width: 240px; box-sizing: border-box; border-radius: 8px; border: 0; background: #F3F3F2; padding: 0 10px; font-size: 13px">
+          </div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #ECECEA">
+          <label for="model">模型</label>
+          <input id="model" value="[模型名称]" style="height: 30px; width: 240px; box-sizing: border-box; border-radius: 8px; border: 0; background: #F3F3F2; padding: 0 10px; font-size: 13px">
+        </div>
+        <div style="font-size: 12px; color: #6B6B6B; margin-top: 10px">API Key 保存在 macOS 钥匙串。</div>
+      </section>
+
+      <section id="targets" style="display: flex; flex-direction: column">
+        <div style="font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 14px">默认写入</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #ECECEA">
+          <label for="cal" style="display: flex; align-items: center; gap: 10px"><span style="width: 7px; height: 7px; border-radius: 4px; background: {{accent}}"></span>日程 → 日历</label>
+          <div style="position: relative; width: 200px"><select id="cal" style="appearance: none; -webkit-appearance: none; width: 100%; height: 30px; border-radius: 8px; border: 0; background: #F3F3F2; font-size: 13px; padding: 0 32px 0 10px"><option>工作</option><option>个人</option></select><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#6B6B6B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="position: absolute; right: 12px; top: 10px; pointer-events: none"><path d="M6 9l6 6 6-6"></path></svg></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #ECECEA">
+          <label for="rem" style="display: flex; align-items: center; gap: 10px"><span style="width: 7px; height: 7px; border-radius: 4px; box-sizing: border-box; border: 1.5px solid #111111"></span>待办 → 提醒事项</label>
+          <div style="position: relative; width: 200px"><select id="rem" style="appearance: none; -webkit-appearance: none; width: 100%; height: 30px; border-radius: 8px; border: 0; background: #F3F3F2; font-size: 13px; padding: 0 32px 0 10px"><option>工作</option><option>收件箱</option></select><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#6B6B6B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="position: absolute; right: 12px; top: 10px; pointer-events: none"><path d="M6 9l6 6 6-6"></path></svg></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #ECECEA">
+          <label for="alert">默认提醒</label>
+          <div style="position: relative; width: 200px"><select id="alert" style="appearance: none; -webkit-appearance: none; width: 100%; height: 30px; border-radius: 8px; border: 0; background: #F3F3F2; font-size: 13px; padding: 0 32px 0 10px"><option>提前 15 分钟</option><option>提前 30 分钟</option><option>不提醒</option></select><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#6B6B6B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="position: absolute; right: 12px; top: 10px; pointer-events: none"><path d="M6 9l6 6 6-6"></path></svg></div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#E8462E","options":["#E8462E","#2F6BFF","#111111","#1F9D55"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#E8462E' };
+  }
+}
+</script>
+</body>
+</html>

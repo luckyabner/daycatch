@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Daycatch · 截图识别</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;font-family:-apple-system,"SF Pro Text","PingFang SC","Helvetica Neue",sans-serif;color:#111111;-webkit-font-smoothing:antialiased}
+a{color:#111111}a:hover{color:#555555}
+button{font-family:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; position: relative; overflow: hidden; background: #E7E6E3; font-size: 13px">
+
+  <!-- 背景：聊天里的一张通知图片 -->
+  <div style="position: absolute; left: 64px; top: 66px; width: 780px; height: 768px; background: #FFFFFF; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden">
+    <div style="height: 56px; border-bottom: 1px solid #ECECEA; display: flex; align-items: center; padding: 0 24px; font-size: 15px; font-weight: 600">行政通知</div>
+    <div style="flex: 1; padding: 24px; display: flex; gap: 10px">
+      <div style="width: 34px; height: 34px; border-radius: 7px; background: #8C9A86; color: #FFFFFF; display: flex; align-items: center; justify-content: center; flex: none">行</div>
+      <div>
+        <div style="color: #6B6B6B; font-size: 11px; margin-bottom: 4px">行政部 · 刘静</div>
+        <div style="width: 520px; background: #FFFDF7; border: 1px solid #E8E1CF; border-radius: 6px; padding: 28px 32px; font-family: 'Songti SC', serif; line-height: 1.9; color: #2A2620">
+          <div style="text-align: center; font-size: 19px; font-weight: 700; margin-bottom: 14px">关于开展 2026 年度消防安全演练的通知</div>
+          <div style="font-size: 14px">各部门：</div>
+          <div style="font-size: 14px; text-indent: 2em">为提升全员应急处置能力，公司定于 <b>11 月 24 日（周二）上午 10:00 – 11:00</b> 在 1 号楼前广场开展消防疏散演练，届时请全员参加。</div>
+          <div style="font-size: 14px; text-indent: 2em">演练前将于 <b>11 月 20 日（周五）下午 14:00</b> 在 2 楼报告厅进行消防知识培训，每部门至少 2 人参加。</div>
+          <div style="font-size: 14px; text-indent: 2em">请各部门于 <b>11 月 21 日前</b> 将参训人员名单报送行政部。</div>
+          <div style="font-size: 14px; text-align: right; margin-top: 14px">行政部<br>2026 年 11 月 16 日</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 遮罩 -->
+  <div style="position: absolute; left: 0; top: 0; width: 1440px; height: 132px; background: rgba(0,0,0,0.38)"></div>
+  <div style="position: absolute; left: 0; top: 132px; width: 154px; height: 512px; background: rgba(0,0,0,0.38)"></div>
+  <div style="position: absolute; left: 742px; top: 132px; width: 698px; height: 512px; background: rgba(0,0,0,0.38)"></div>
+  <div style="position: absolute; left: 0; top: 644px; width: 1440px; height: 256px; background: rgba(0,0,0,0.38)"></div>
+
+  <!-- 选区 -->
+  <div style="position: absolute; left: 154px; top: 132px; width: 588px; height: 512px; box-sizing: border-box; border: 1px solid #FFFFFF">
+    <span style="position: absolute; left: 0; top: -26px; color: #FFFFFF; font-size: 11px; font-variant-numeric: tabular-nums">588 × 512</span>
+  </div>
+
+  <!-- 选区下方状态 -->
+  <div style="position: absolute; left: 154px; top: 660px; display: flex; align-items: center; gap: 14px; background: #FFFFFF; border-radius: 999px; padding: 6px 6px 6px 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.2)">
+    <span style="color: #4A4A4A; font-size: 12px">文字识别完成（本机）· 已提取 3 项</span>
+    <button style="height: 28px; padding: 0 12px; border-radius: 999px; border: 0; background: #F3F3F2; font-size: 12px">重新框选</button>
+  </div>
+
+  <!-- 结果面板 -->
+  <div style="position: absolute; left: 820px; top: 56px; width: 520px; background: #FFFFFF; border-radius: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 30px 70px rgba(0,0,0,0.22); display: flex; flex-direction: column">
+    <div style="padding: 24px 28px 20px; display: flex; justify-content: space-between; align-items: flex-start">
+      <div>
+        <div style="font-size: 12px; color: #6B6B6B">来自截图</div>
+        <div style="font-size: 26px; font-weight: 600; letter-spacing: -0.02em; margin-top: 6px">识别到 3 项</div>
+      </div>
+      <button aria-label="关闭" style="width: 28px; height: 28px; border: 0; background: #F3F3F2; border-radius: 14px; display: flex; align-items: center; justify-content: center; padding: 0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#6B6B6B" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+    </div>
+
+    <div style="border-top: 1px solid #ECECEA">
+      <div style="display: flex; gap: 20px; padding: 18px 28px; border-bottom: 1px solid #ECECEA">
+        <div style="width: 52px; flex: none; text-align: center"><div style="font-size: 11px; color: #6B6B6B">11月</div><div style="font-size: 32px; font-weight: 500; letter-spacing: -0.03em; line-height: 1.1">20</div><div style="font-size: 11px; color: #6B6B6B">周五</div></div>
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 5px">
+          <div style="display: flex; align-items: center; gap: 8px"><span style="width: 7px; height: 7px; border-radius: 4px; background: {{accent}}"></span><span style="font-size: 11px; color: #6B6B6B">日程 · 工作</span></div>
+          <div style="font-size: 16px; font-weight: 600">消防知识培训</div>
+          <div style="color: #4A4A4A">14:00 – 15:00 · 2 楼报告厅</div>
+          <div style="color: #8A5A00; font-size: 12px">原文未写结束时间，暂按 1 小时</div>
+        </div>
+        <button aria-pressed="true" aria-label="添加 消防知识培训" style="flex: none; width: 22px; height: 22px; margin-top: 1px; border-radius: 11px; border: 0; padding: 0; background: {{accent}}; box-shadow: 0 2px 6px {{accentShadow}}; display: flex; align-items: center; justify-content: center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></button>
+      </div>
+      <div style="display: flex; gap: 20px; padding: 18px 28px; border-bottom: 1px solid #ECECEA">
+        <div style="width: 52px; flex: none; text-align: center"><div style="font-size: 11px; color: #6B6B6B">11月</div><div style="font-size: 32px; font-weight: 500; letter-spacing: -0.03em; line-height: 1.1">21</div><div style="font-size: 11px; color: #6B6B6B">周六</div></div>
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 5px">
+          <div style="display: flex; align-items: center; gap: 8px"><span style="width: 7px; height: 7px; border-radius: 4px; box-sizing: border-box; border: 1.5px solid #9A9A9A"></span><span style="font-size: 11px; color: #6B6B6B">待办 · 提醒事项</span></div>
+          <div style="font-size: 16px; font-weight: 600">向行政部报送参训名单</div>
+          <div style="color: #4A4A4A">当天截止</div>
+        </div>
+        <button aria-pressed="true" aria-label="添加 报送参训名单" style="flex: none; width: 22px; height: 22px; margin-top: 1px; border-radius: 11px; border: 0; padding: 0; background: {{accent}}; box-shadow: 0 2px 6px {{accentShadow}}; display: flex; align-items: center; justify-content: center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></button>
+      </div>
+      <div style="display: flex; gap: 20px; padding: 18px 28px; border-bottom: 1px solid #ECECEA">
+        <div style="width: 52px; flex: none; text-align: center"><div style="font-size: 11px; color: #6B6B6B">11月</div><div style="font-size: 32px; font-weight: 500; letter-spacing: -0.03em; line-height: 1.1">24</div><div style="font-size: 11px; color: #6B6B6B">周二</div></div>
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 5px">
+          <div style="display: flex; align-items: center; gap: 8px"><span style="width: 7px; height: 7px; border-radius: 4px; background: {{accent}}"></span><span style="font-size: 11px; color: #6B6B6B">日程 · 工作</span></div>
+          <div style="font-size: 16px; font-weight: 600">消防疏散演练</div>
+          <div style="color: #4A4A4A">10:00 – 11:00 · 1 号楼前广场</div>
+        </div>
+        <button aria-pressed="true" aria-label="添加 消防疏散演练" style="flex: none; width: 22px; height: 22px; margin-top: 1px; border-radius: 11px; border: 0; padding: 0; background: {{accent}}; box-shadow: 0 2px 6px {{accentShadow}}; display: flex; align-items: center; justify-content: center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></button>
+      </div>
+    </div>
+
+    <div style="padding: 20px 28px 24px; display: flex; flex-direction: column; gap: 14px">
+      <button style="height: 46px; border-radius: 12px; border: 0; background: #F0F0EE; color: #111111; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px">添加 3 项<span style="color: #8A8A8A; font-weight: 400; font-size: 13px">↩</span></button>
+      <div style="display: flex; justify-content: space-between; font-size: 12px; color: #6B6B6B">
+        <a href="#" style="color: #6B6B6B; text-decoration: none">查看识别文字</a>
+        <span>⌥⇧S 截图识别 · esc 关闭</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#E8462E","options":["#E8462E","#2F6BFF","#111111","#1F9D55"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const accent = this.props.accent ?? '#E8462E';
+    return { accent: accent, accentShadow: accent + '40' };
+  }
+}
+</script>
+</body>
+</html>

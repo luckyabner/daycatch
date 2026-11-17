@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Daycatch · 手动输入识别</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;font-family:-apple-system,"SF Pro Text","PingFang SC","Helvetica Neue",sans-serif;color:#111111;-webkit-font-smoothing:antialiased}
+a{color:#111111}a:hover{color:#555555}
+button,textarea{font-family:inherit;cursor:pointer}
+textarea{cursor:text}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; position: relative; overflow: hidden; background: #E7E6E3; font-size: 13px">
+
+  <!-- 菜单栏 -->
+  <div style="position: absolute; left: 0; top: 0; right: 0; height: 30px; background: rgba(255,255,255,0.72); display: flex; align-items: center; justify-content: space-between; padding: 0 16px">
+    <div style="display: flex; gap: 20px; align-items: center"><span style="font-weight: 600">备忘录</span><span>文件</span><span>编辑</span><span>格式</span><span>显示</span></div>
+    <div style="display: flex; gap: 16px; align-items: center">
+      <button aria-label="Daycatch" aria-expanded="true" style="width: 28px; height: 22px; border: 0; border-radius: 5px; background: rgba(0,0,0,0.12); padding: 0; display: flex; align-items: center; justify-content: center">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3.5"></rect><path d="M3.5 10h17M8 3v4M16 3v4"></path></svg>
+      </button>
+      <span>周二 11月17日 17:43</span>
+    </div>
+  </div>
+
+  <!-- 背景窗口 -->
+  <div style="position: absolute; left: 96px; top: 90px; width: 720px; height: 640px; background: #FFFFFF; border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.08); padding: 20px 32px; box-sizing: border-box">
+    <div style="display: flex; gap: 8px; margin-bottom: 28px" aria-hidden="true"><span style="width: 12px; height: 12px; border-radius: 6px; background: #FF5F57"></span><span style="width: 12px; height: 12px; border-radius: 6px; background: #FEBC2E"></span><span style="width: 12px; height: 12px; border-radius: 6px; background: #28C840"></span></div>
+    <div style="font-size: 22px; font-weight: 700; margin-bottom: 14px">电话记录 11/17</div>
+    <div style="line-height: 1.9; color: #4A4A4A; font-size: 14px">王总来电：合同第 4 条付款节点要再谈。<br>明天上午 10 点电话细聊，下周一前把修改版发给法务。</div>
+  </div>
+
+  <!-- 菜单栏弹窗 -->
+  <div style="position: absolute; right: 150px; top: 38px; width: 420px; background: #FFFFFF; border-radius: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 30px 70px rgba(0,0,0,0.16); display: flex; flex-direction: column">
+
+    <div style="padding: 18px 22px 0; display: flex; justify-content: space-between; align-items: center">
+      <div style="display: flex; gap: 18px; font-size: 13px">
+        <button aria-pressed="true" style="border: 0; background: transparent; padding: 0 0 8px; font-weight: 600; border-bottom: 1.5px solid #111111; font-size: 13px">识别</button>
+        <button aria-pressed="false" style="border: 0; background: transparent; padding: 0 0 8px; color: #6B6B6B; border-bottom: 1.5px solid transparent; font-size: 13px">最近添加</button>
+      </div>
+      <button aria-label="设置" style="width: 26px; height: 26px; border: 0; background: transparent; padding: 0; display: flex; align-items: center; justify-content: center; margin-bottom: 8px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B6B6B" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"></path><circle cx="16" cy="7" r="2"></circle><circle cx="10" cy="17" r="2"></circle></svg>
+      </button>
+    </div>
+    <div style="height: 1px; background: #ECECEA"></div>
+
+    <div style="padding: 18px 22px 16px; display: flex; flex-direction: column; gap: 12px">
+      <label for="input-text" style="position: absolute; width: 1px; height: 1px; overflow: hidden">输入包含时间安排的文字</label>
+      <textarea id="input-text" style="height: 84px; resize: none; border: 0; padding: 0; font-size: 17px; line-height: 1.55; color: #111111; outline: none; letter-spacing: -0.01em">明天上午10点和王总电话沟通合同细节，下周一前把修改版发给法务</textarea>
+      <div style="display: flex; align-items: center; justify-content: space-between">
+        <div style="display: flex; gap: 14px; font-size: 12px">
+          <button style="border: 0; background: transparent; padding: 0; color: #6B6B6B; font-size: 12px">粘贴</button>
+          <button style="border: 0; background: transparent; padding: 0; color: #6B6B6B; font-size: 12px">截图</button>
+        </div>
+        <span style="font-size: 12px; color: #6B6B6B">⌘↩ 识别</span>
+      </div>
+    </div>
+
+    <div style="border-top: 1px solid #ECECEA">
+      <div style="display: flex; gap: 18px; padding: 16px 22px; border-bottom: 1px solid #ECECEA">
+        <div style="width: 44px; flex: none; text-align: center"><div style="font-size: 11px; color: #6B6B6B">11月</div><div style="font-size: 28px; font-weight: 500; letter-spacing: -0.03em; line-height: 1.1">18</div><div style="font-size: 11px; color: #6B6B6B">周三</div></div>
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 5px">
+          <div style="display: flex; align-items: center; gap: 8px"><span style="width: 7px; height: 7px; border-radius: 4px; background: {{accent}}"></span><span style="font-size: 11px; color: #6B6B6B">日程 · 工作</span></div>
+          <div style="font-size: 15px; font-weight: 600">与王总电话沟通合同细节</div>
+          <div style="color: #4A4A4A">10:00 – 10:30</div>
+        </div>
+        <button aria-pressed="true" aria-label="添加 与王总电话沟通" style="flex: none; width: 22px; height: 22px; margin-top: 1px; border-radius: 11px; border: 0; padding: 0; background: {{accent}}; box-shadow: 0 2px 6px {{accentShadow}}; display: flex; align-items: center; justify-content: center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></button>
+      </div>
+      <div style="display: flex; gap: 18px; padding: 16px 22px; border-bottom: 1px solid #ECECEA">
+        <div style="width: 44px; flex: none; text-align: center"><div style="font-size: 11px; color: #6B6B6B">11月</div><div style="font-size: 28px; font-weight: 500; letter-spacing: -0.03em; line-height: 1.1">23</div><div style="font-size: 11px; color: #6B6B6B">周一</div></div>
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 5px">
+          <div style="display: flex; align-items: center; gap: 8px"><span style="width: 7px; height: 7px; border-radius: 4px; box-sizing: border-box; border: 1.5px solid #9A9A9A"></span><span style="font-size: 11px; color: #6B6B6B">待办 · 提醒事项</span></div>
+          <div style="font-size: 15px; font-weight: 600">把合同修改版发给法务</div>
+          <div style="color: #4A4A4A">当天截止</div>
+        </div>
+        <button aria-pressed="true" aria-label="添加 发给法务" style="flex: none; width: 22px; height: 22px; margin-top: 1px; border-radius: 11px; border: 0; padding: 0; background: {{accent}}; box-shadow: 0 2px 6px {{accentShadow}}; display: flex; align-items: center; justify-content: center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></button>
+      </div>
+    </div>
+
+    <div style="padding: 16px 22px 20px">
+      <button style="width: 100%; height: 42px; border-radius: 11px; border: 0; background: #F0F0EE; color: #111111; font-size: 14px; font-weight: 600">添加 2 项</button>
+    </div>
+  </div>
+
+  <!-- 添加成功提示（另一状态） -->
+  <div style="position: absolute; right: 150px; bottom: 64px; width: 340px; background: #FFFFFF; color: #111111; border-radius: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 16px 40px rgba(0,0,0,0.10); padding: 14px 16px 14px 18px; display: flex; gap: 12px; align-items: center">
+    <span style="width: 7px; height: 7px; border-radius: 4px; background: {{accent}}; flex: none"></span>
+    <div style="flex: 1">
+      <div style="font-weight: 600">已添加 2 项</div>
+      <div style="color: #6B6B6B; font-size: 12px; margin-top: 2px">日历「工作」1 项 · 提醒事项 1 项</div>
+    </div>
+    <button style="height: 28px; padding: 0 12px; border-radius: 999px; border: 0; background: #F3F3F2; color: #111111; font-size: 12px">撤销</button>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#E8462E","options":["#E8462E","#2F6BFF","#111111","#1F9D55"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const accent = this.props.accent ?? '#E8462E';
+    return { accent: accent, accentShadow: accent + '40' };
+  }
+}
+</script>
+</body>
+</html>

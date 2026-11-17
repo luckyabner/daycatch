@@ -1,0 +1,82 @@
+name: Daycatch
+options:
+  bundleIdPrefix: com.luckyabner
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    # 没有开发者证书：统一使用 ad-hoc 签名
+    CODE_SIGN_IDENTITY: "-"
+    CODE_SIGN_STYLE: Manual
+    DEVELOPMENT_TEAM: ""
+
+targets:
+  Daycatch:
+    type: application
+    platform: macOS
+    sources:
+      - path: Daycatch
+        excludes:
+          - "**/*.plist"
+          - "**/*.entitlements"
+    info:
+      path: Daycatch/Info.plist
+      properties:
+        CFBundleDisplayName: Daycatch
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+        LSUIElement: true
+        LSApplicationCategoryType: public.app-category.productivity
+        NSHumanReadableCopyright: ""
+        NSCalendarsFullAccessUsageDescription: Daycatch 会把你确认过的日程写入「日历」，撤销时删除刚写入的日程。
+        NSRemindersFullAccessUsageDescription: Daycatch 会把你确认过的待办写入「提醒事项」，撤销时删除刚写入的待办。
+        NSCalendarsUsageDescription: Daycatch 会把你确认过的日程写入「日历」。
+        NSRemindersUsageDescription: Daycatch 会把你确认过的待办写入「提醒事项」。
+    entitlements:
+      path: Daycatch/Daycatch.entitlements
+      properties:
+        com.apple.security.personal-information.calendars: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.luckyabner.daycatch
+        PRODUCT_NAME: Daycatch
+        ENABLE_HARDENED_RUNTIME: YES
+        # ad-hoc 签名时 Xcode 不会自动加 runtime 选项，这里显式开启 Hardened Runtime
+        OTHER_CODE_SIGN_FLAGS: "--options=runtime"
+        # Debug 默认会把代码拆进单独的 .debug.dylib；ad-hoc 签名没有 Team ID，开启库校验后可能加载失败
+        ENABLE_DEBUG_DYLIB: NO
+        GENERATE_INFOPLIST_FILE: NO
+        COMBINE_HIDPI_IMAGES: YES
+
+  DaycatchTests:
+    type: bundle.unit-test
+    platform: macOS
+    # 不挂宿主 App：直接把纯逻辑源码编进测试包，测试时不会启动菜单栏应用
+    sources:
+      - DaycatchTests
+      - Daycatch/Model
+      - Daycatch/AI
+      - Daycatch/Hotkeys/Shortcut.swift
+      - Daycatch/Settings/CredentialStore.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.luckyabner.daycatch.tests
+        GENERATE_INFOPLIST_FILE: YES
+        ENABLE_HARDENED_RUNTIME: NO
+
+schemes:
+  Daycatch:
+    build:
+      targets:
+        # 测试不挂宿主 App，跑测试时不重新编译 App，免得覆盖掉 scripts/sign.sh 的签名
+        Daycatch: [run, profile, analyze, archive]
+        DaycatchTests: [test]
+    test:
+      targets:
+        - DaycatchTests
+    run:
+      config: Debug

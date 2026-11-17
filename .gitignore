@@ -1,0 +1,7 @@
+build/
+Daycatch.xcodeproj/
+Daycatch/Info.plist
+Daycatch/Daycatch.entitlements
+.DS_Store
+xcuserdata/
+.signing/
