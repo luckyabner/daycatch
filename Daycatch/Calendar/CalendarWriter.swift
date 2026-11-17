@@ -66,6 +66,9 @@ final class CalendarWriter {
     private var changeObserver: NSObjectProtocol?
     var onStoreChanged: (() -> Void)?
 
+    /// 日程面板读取数据时复用同一个 store，权限和变更通知都能对上
+    var eventStore: EKEventStore { store }
+
     init() {
         changeObserver = NotificationCenter.default.addObserver(
             forName: .EKEventStoreChanged, object: store, queue: .main

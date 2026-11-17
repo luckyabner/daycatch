@@ -133,6 +133,12 @@ final class PanelHost {
         panel.orderOut(nil)
     }
 
+    /// 内容宽度变了（例如日程面板从两栏收成一栏）后重新对齐到菜单栏图标下方
+    func reanchor(topLeft: NSPoint) {
+        anchorTopLeft = topLeft
+        if let contentSize { applyFrame(contentSize: contentSize) }
+    }
+
     /// 当前可见面板的尺寸（不含阴影边距）
     var visibleSize: NSSize {
         NSSize(

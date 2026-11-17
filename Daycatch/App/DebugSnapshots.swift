@@ -1,4 +1,5 @@
 import AppKit
+import EventKit
 import SwiftUI
 
 /// `Daycatch --snapshot <目录>`：用示例数据渲染各界面为 PNG，便于对照设计稿检查视觉细节。
@@ -53,6 +54,34 @@ enum DebugSnapshots {
         toast.title = "已添加 2 项"
         toast.detail = "日历「工作」1 项 · 提醒事项「工作」1 项"
         save(ToastView(model: toast, action: {}).daycatchStyle(accent: accent), "3-toast", directory)
+
+        // 点击菜单栏图标打开的日程面板
+        let agenda = AgendaModel(store: EKEventStore())
+        agenda.hasLoaded = true
+        agenda.eventAccess = .granted
+        agenda.reminderAccess = .granted
+        agenda.events = SampleData.agendaEvents
+        agenda.todos = SampleData.agendaTodos
+        save(AgendaPanelView(model: agenda, actions: AgendaPanelActions()).daycatchStyle(accent: accent), "5-agenda", directory)
+
+        let agendaSingle = AgendaModel(store: EKEventStore())
+        agendaSingle.hasLoaded = true
+        agendaSingle.eventAccess = .granted
+        agendaSingle.reminderAccess = .granted
+        agendaSingle.todos = SampleData.agendaTodos
+        save(AgendaPanelView(model: agendaSingle, actions: AgendaPanelActions()).daycatchStyle(accent: accent), "5-agenda-single", directory)
+
+        let agendaEmpty = AgendaModel(store: EKEventStore())
+        agendaEmpty.hasLoaded = true
+        agendaEmpty.eventAccess = .granted
+        agendaEmpty.reminderAccess = .granted
+        save(AgendaPanelView(model: agendaEmpty, actions: AgendaPanelActions()).daycatchStyle(accent: accent), "5-agenda-empty", directory)
+
+        let agendaPermission = AgendaModel(store: EKEventStore())
+        agendaPermission.hasLoaded = true
+        agendaPermission.eventAccess = .denied
+        agendaPermission.reminderAccess = .denied
+        save(AgendaPanelView(model: agendaPermission, actions: AgendaPanelActions()).daycatchStyle(accent: accent), "5-agenda-permission", directory)
 
         // 缺权限时的引导卡片（系统自己弹授权对话框，这里只做不打断的说明）
         let hint = ToastModel()
@@ -123,4 +152,24 @@ enum SampleData {
             ExtractedItem(kind: .todo, title: "把合同修改版发给法务", due: date("2026-11-23")),
         ]
     )
+
+    // MARK: 日程面板
+
+    private static func moment(_ text: String) -> Date {
+        date(text).date
+    }
+
+    static let agendaEvents: [AgendaEntry] = [
+        AgendaEntry(id: "event-1", kind: .event, title: "Q4 复盘会", date: moment("2026-11-19T15:00:00+08:00"), end: moment("2026-11-19T16:30:00+08:00"), isAllDay: false, hasTime: true, location: "3 楼大会议室", calendarTitle: "工作", calendarColorHex: 0xE8462E, isOverdue: false),
+        AgendaEntry(id: "event-2", kind: .event, title: "消防知识培训", date: moment("2026-11-20T14:00:00+08:00"), end: moment("2026-11-20T15:00:00+08:00"), isAllDay: false, hasTime: true, location: "2 楼报告厅", calendarTitle: "工作", calendarColorHex: 0xE8462E, isOverdue: false),
+        AgendaEntry(id: "event-3", kind: .event, title: "产品评审日", date: moment("2026-11-24"), end: moment("2026-11-24"), isAllDay: true, hasTime: false, location: nil, calendarTitle: "个人", calendarColorHex: 0x2F6BFF, isOverdue: false),
+        AgendaEntry(id: "event-4", kind: .event, title: "与设计师同步首页改版", date: moment("2026-11-25T10:00:00+08:00"), end: moment("2026-11-25T10:45:00+08:00"), isAllDay: false, hasTime: true, location: "线上", calendarTitle: "个人", calendarColorHex: 0x2F6BFF, isOverdue: false),
+    ]
+
+    static let agendaTodos: [AgendaEntry] = [
+        AgendaEntry(id: "todo-1", kind: .todo, title: "准备各自模块的 Q4 数据", date: moment("2026-11-18T18:00:00+08:00"), end: nil, isAllDay: false, hasTime: true, location: nil, calendarTitle: "工作", calendarColorHex: 0x1F9D55, isOverdue: false),
+        AgendaEntry(id: "todo-2", kind: .todo, title: "把合同修改版发给法务", date: moment("2026-11-19"), end: nil, isAllDay: false, hasTime: false, location: nil, calendarTitle: "工作", calendarColorHex: 0x1F9D55, isOverdue: false),
+        AgendaEntry(id: "todo-3", kind: .todo, title: "向行政部报送参训名单", date: moment("2026-11-21"), end: nil, isAllDay: false, hasTime: false, location: nil, calendarTitle: "工作", calendarColorHex: 0x1F9D55, isOverdue: false),
+        AgendaEntry(id: "todo-4", kind: .todo, title: "整理会议纪要", date: nil, end: nil, isAllDay: false, hasTime: false, location: nil, calendarTitle: "个人", calendarColorHex: 0x9A9A9A, isOverdue: false),
+    ]
 }

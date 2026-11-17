@@ -31,6 +31,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
             if arguments.contains("--open-settings") { self?.controller?.openSettings() }
             if arguments.contains("--open-manual") { self?.controller?.openManual() }
+            if arguments.contains("--open-agenda") { self?.controller?.openAgenda() }
         }
     }
 

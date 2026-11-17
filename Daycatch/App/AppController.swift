@@ -11,6 +11,8 @@ final class AppController {
 
     private let manualModel = RecognitionModel(source: .manual)
     private let manualHost = PanelHost()
+    private lazy var agendaModel = AgendaModel(store: calendarWriter.eventStore)
+    private let agendaHost = PanelHost()
     private var resultModel: RecognitionModel?
     private let resultHost = PanelHost()
     private let toastModel = ToastModel()
@@ -22,7 +24,7 @@ final class AppController {
     private var isCapturing = false
 
     init() {
-        statusItem.onClick = { [weak self] in self?.toggleManual() }
+        statusItem.onClick = { [weak self] in self?.toggleAgenda() }
         statusItem.onOpenSettings = { [weak self] in self?.openSettings() }
 
         hotkeys.setHandler(for: .selection) { [weak self] in self?.startSelection() }
@@ -30,10 +32,102 @@ final class AppController {
         hotkeys.setHandler(for: .manual) { [weak self] in self?.toggleManual() }
         hotkeys.update(settings.shortcuts)
 
-        calendarWriter.onStoreChanged = { [weak self] in self?.refreshCalendarTitles() }
+        calendarWriter.onStoreChanged = { [weak self] in
+            self?.refreshCalendarTitles()
+            self?.refreshAgendaIfVisible()
+        }
 
+        configureAgendaPanel()
         configureManualPanel()
         configureToast { [weak self] in self?.undoLastWrite() }
+    }
+
+    // MARK: - 菜单栏日程面板
+
+    private func configureAgendaPanel() {
+        agendaHost.panel.keyHandler = { [weak self] command in
+            guard command == .escape else { return false }
+            self?.closeAgenda()
+            return true
+        }
+        rebuildAgendaPanel()
+    }
+
+    private func rebuildAgendaPanel() {
+        agendaHost.setContent(
+            AgendaPanelView(
+                model: agendaModel,
+                actions: AgendaPanelActions(
+                    recognize: { [weak self] in
+                        self?.closeAgenda()
+                        self?.openManual()
+                    },
+                    openSettings: { [weak self] in
+                        self?.closeAgenda()
+                        self?.openSettings()
+                    },
+                    openPrivacy: { pane in Permissions.openSystemSettings(pane) },
+                    recognizeHint: "输入文字识别（\(shortcutText(.manual, compact: true))）"
+                )
+            )
+            .daycatchStyle(accent: settings.accent)
+        )
+    }
+
+    func toggleAgenda() {
+        if agendaHost.isVisible {
+            closeAgenda()
+        } else {
+            openAgenda()
+        }
+    }
+
+    func openAgenda() {
+        closeManual()
+        closeResult()
+        rebuildAgendaPanel()
+        agendaHost.show(topLeft: agendaTopLeft())
+        statusItem.setHighlighted(true)
+        startOutsideClickMonitor()
+        refreshAgenda()
+    }
+
+    func closeAgenda() {
+        agendaHost.close()
+        updateStatusItemHighlight()
+    }
+
+    /// 关掉一个面板后：还有别的菜单栏面板开着就保持图标高亮和「点外面收起」
+    private func updateStatusItemHighlight() {
+        let anyPanelVisible = manualHost.isVisible || agendaHost.isVisible
+        statusItem.setHighlighted(anyPanelVisible)
+        if !anyPanelVisible {
+            stopOutsideClickMonitor()
+        }
+    }
+
+    /// 面板左上角：居中挂在菜单栏图标下方（两栏变一栏后也要重新对齐）
+    private func agendaTopLeft() -> NSPoint {
+        let width = AgendaPanelView.width(columns: agendaModel.columnCount)
+        if let frame = statusItem.buttonFrame {
+            return NSPoint(x: frame.midX - width / 2, y: frame.minY - 8)
+        }
+        let visible = NSScreen.main?.visibleFrame ?? .zero
+        return NSPoint(x: visible.maxX - width - 24, y: visible.maxY - 8)
+    }
+
+    private func refreshAgendaIfVisible() {
+        guard agendaHost.isVisible else { return }
+        refreshAgenda()
+    }
+
+    private func refreshAgenda() {
+        Task { [weak self] in
+            guard let self else { return }
+            await self.agendaModel.refresh()
+            guard self.agendaHost.isVisible else { return }
+            self.agendaHost.reanchor(topLeft: self.agendaTopLeft())
+        }
     }
 
     // MARK: - ③ 手动输入
@@ -76,6 +170,7 @@ final class AppController {
     }
 
     func openManual() {
+        closeAgenda()
         prepare(manualModel)
         let topLeft: NSPoint
         if let frame = statusItem.buttonFrame {
@@ -93,9 +188,8 @@ final class AppController {
 
     func closeManual() {
         manualHost.close()
-        statusItem.setHighlighted(false)
-        stopOutsideClickMonitor()
         manualModel.isEditing = false
+        updateStatusItemHighlight()
     }
 
     private func recognizeManualInput() {
@@ -115,8 +209,13 @@ final class AppController {
         stopOutsideClickMonitor()
         outsideClickMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
             MainActor.assumeIsolated {
-                guard let self, self.manualHost.isVisible, !self.manualModel.isAdding else { return }
-                self.closeManual()
+                guard let self else { return }
+                if self.manualHost.isVisible, !self.manualModel.isAdding {
+                    self.closeManual()
+                }
+                if self.agendaHost.isVisible {
+                    self.closeAgenda()
+                }
             }
         }
     }
@@ -129,7 +228,8 @@ final class AppController {
     // MARK: - ① 选中识别
 
     func startSelection() {
-        let hadOwnPanel = manualHost.isVisible || resultHost.isVisible
+        let hadOwnPanel = manualHost.isVisible || resultHost.isVisible || agendaHost.isVisible
+        closeAgenda()
         closeManual()
         closeResult()
         let mouse = NSEvent.mouseLocation
@@ -168,6 +268,7 @@ final class AppController {
 
     func startScreenshot() {
         guard !isCapturing else { return }
+        closeAgenda()
         closeManual()
         closeResult()
 
@@ -523,6 +624,7 @@ final class AppController {
     // MARK: - 设置
 
     func openSettings() {
+        closeAgenda()
         if settingsWindow == nil {
             settingsWindow = SettingsWindowController(controller: self)
         }
@@ -537,6 +639,7 @@ final class AppController {
     /// 点缀色修改后刷新面板
     func setContentAccent() {
         configureManualPanel()
+        rebuildAgendaPanel()
     }
 
     private func refreshCalendarTitles() {

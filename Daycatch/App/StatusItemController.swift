@@ -1,6 +1,6 @@
 import AppKit
 
-/// 菜单栏图标：左键打开 ③ 输入弹窗，右键显示菜单（设置 / 退出）。
+/// 菜单栏图标：左键打开日程面板（日程 / 待办），右键显示菜单（设置 / 退出）。
 @MainActor
 final class StatusItemController: NSObject {
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
@@ -15,7 +15,7 @@ final class StatusItemController: NSObject {
         button.target = self
         button.action = #selector(handleClick)
         button.sendAction(on: [.leftMouseUp, .rightMouseUp])
-        button.toolTip = "Daycatch"
+        button.toolTip = "Daycatch · 日程与待办"
     }
 
     /// 图标按钮在屏幕上的位置，用于定位弹窗；按钮尚未布局到菜单栏时返回 nil
