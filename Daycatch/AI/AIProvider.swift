@@ -11,13 +11,7 @@ enum ProviderKind: String, CaseIterable, Identifiable, Sendable {
     var id: String { rawValue }
 
     var displayName: String {
-        switch self {
-        case .anthropic: "Claude（Anthropic）"
-        case .openai: "OpenAI"
-        case .deepseek: "DeepSeek"
-        case .qwen: "通义千问"
-        case .custom: "自定义（OpenAI 兼容）"
-        }
+        Localization.strings.providerName(self)
     }
 
     var defaultBaseURL: String {
@@ -92,7 +86,7 @@ struct URLSessionHTTPClient: HTTPClient {
     func send(_ request: URLRequest) async throws -> (Data, HTTPURLResponse) {
         do {
             let (data, response) = try await session.data(for: request)
-            guard let http = response as? HTTPURLResponse else { throw AIError.badResponse("不是 HTTP 响应") }
+            guard let http = response as? HTTPURLResponse else { throw AIError.badResponse(Localization.strings.notHTTPResponse) }
             return (data, http)
         } catch let error as URLError {
             throw AIError(urlError: error)
@@ -131,22 +125,23 @@ enum AIError: Error, Equatable, LocalizedError {
     }
 
     var errorDescription: String? {
-        switch self {
-        case .missingAPIKey: "还没有填写 API Key"
-        case .missingModel: "还没有填写模型名称"
-        case .invalidBaseURL: "服务地址（Base URL）无效"
-        case .offline: "网络未连接"
-        case .timedOut: "请求超时"
-        case .network(let message): "网络错误：\(message)"
-        case .unauthorized: "API Key 无效"
-        case .forbidden(let message): "没有访问权限：\(message)"
-        case .modelNotFound(let model): "找不到模型「\(model)」"
-        case .rateLimited: "请求太频繁或额度不足"
-        case .server(let status, _): "AI 服务暂时不可用（HTTP \(status)）"
-        case .badRequest(let message): "请求被拒绝：\(message)"
-        case .refused: "AI 拒绝处理这段文字"
-        case .badResponse(let message): "AI 返回了无法理解的响应：\(message)"
-        case .textTooLong(let limit): "文字太长（超过 \(limit) 字）"
+        let t = Localization.strings
+        return switch self {
+        case .missingAPIKey: t.aiErrorMissingAPIKey
+        case .missingModel: t.aiErrorMissingModel
+        case .invalidBaseURL: t.aiErrorInvalidBaseURL
+        case .offline: t.aiErrorOffline
+        case .timedOut: t.aiErrorTimedOut
+        case .network(let message): t.aiErrorNetwork(message)
+        case .unauthorized: t.aiErrorUnauthorized
+        case .forbidden(let message): t.aiErrorForbidden(message)
+        case .modelNotFound(let model): t.aiErrorModelNotFound(model)
+        case .rateLimited: t.aiErrorRateLimited
+        case .server(let status, _): t.aiErrorServer(status)
+        case .badRequest(let message): t.aiErrorBadRequest(message)
+        case .refused: t.aiErrorRefused
+        case .badResponse(let message): t.aiErrorBadResponse(message)
+        case .textTooLong(let limit): t.aiErrorTextTooLong(limit)
         }
     }
 

@@ -65,13 +65,13 @@ struct AnthropicProvider: AIProvider {
     /// 从 Messages API 响应中取出文本（忽略 thinking 等其他内容块）。
     static func text(from data: Data) throws -> String {
         guard let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-            throw AIError.badResponse("响应不是 JSON")
+            throw AIError.badResponse(Localization.strings.responseNotJSON)
         }
         if let stop = object["stop_reason"] as? String, stop == "refusal" {
             throw AIError.refused
         }
         guard let content = object["content"] as? [[String: Any]] else {
-            throw AIError.badResponse("缺少 content")
+            throw AIError.badResponse(Localization.strings.responseMissingContent)
         }
         let text = content
             .filter { ($0["type"] as? String) == "text" }

@@ -45,13 +45,13 @@ struct OpenAICompatibleProvider: AIProvider {
 
     static func text(from data: Data) throws -> String {
         guard let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-            throw AIError.badResponse("响应不是 JSON")
+            throw AIError.badResponse(Localization.strings.responseNotJSON)
         }
         guard let choices = object["choices"] as? [[String: Any]], let first = choices.first,
               let message = first["message"] as? [String: Any]
         else {
             if let message = AIError.errorMessage(in: data) { throw AIError.badRequest(message) }
-            throw AIError.badResponse("缺少 choices")
+            throw AIError.badResponse(Localization.strings.responseMissingChoices)
         }
         if let refusal = message["refusal"] as? String, !refusal.isEmpty { throw AIError.refused }
         guard let content = message["content"] as? String, !content.isEmpty else {

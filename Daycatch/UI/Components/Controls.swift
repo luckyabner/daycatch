@@ -87,8 +87,8 @@ struct CheckCircleButton: View {
             .animation(.easeOut(duration: 0.12), value: isChecked)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("添加 \(label)")
-        .accessibilityValue(isChecked ? "已选中" : "未选中")
+        .accessibilityLabel(Localization.strings.checkItemAccessibilityLabel(label))
+        .accessibilityValue(isChecked ? Localization.strings.checkedAccessibilityValue : Localization.strings.uncheckedAccessibilityValue)
     }
 }
 
@@ -179,7 +179,7 @@ struct CloseButton: View {
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("关闭")
+        .accessibilityLabel(Localization.strings.closeAccessibilityLabel)
     }
 }
 

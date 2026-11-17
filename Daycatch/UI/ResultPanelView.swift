@@ -13,6 +13,7 @@ struct ResultPanelView: View {
     var actions: PanelActions
     var footerHint: String
 
+    private var t: Strings { Localization.strings }
     private var width: CGFloat { model.source == .screenshot ? 520 : 480 }
     private var metrics: RowMetrics { model.source.metrics }
 
@@ -28,8 +29,8 @@ struct ResultPanelView: View {
                 case .empty:
                     NoticeBody(
                         notice: Notice(
-                            title: "没有识别到日程或待办",
-                            message: "AI 没有在这段文字里找到时间安排。",
+                            title: t.emptyResultTitle,
+                            message: t.emptyResultMessage,
                             actions: [.retry]
                         ),
                         perform: actions.perform
@@ -68,10 +69,10 @@ struct ResultPanelView: View {
 
     private var title: String {
         switch model.phase {
-        case .idle, .loading: "正在识别…"
-        case .results: "识别到 \(model.rows.count) 项"
-        case .empty: "识别到 0 项"
-        case .notice: model.source == .screenshot ? "截图识别" : "选中识别"
+        case .idle, .loading: t.panelTitleRecognizing
+        case .results: t.panelTitleFound(model.rows.count)
+        case .empty: t.panelTitleFound(0)
+        case .notice: model.source == .screenshot ? t.panelTitleScreenshot : t.panelTitleSelection
         }
     }
 
@@ -98,7 +99,7 @@ struct ResultPanelView: View {
 
     private var loadingMessage: String {
         if case .loading(let message) = model.phase { return message }
-        return "正在识别…"
+        return t.panelTitleRecognizing
     }
 
     // MARK: 结果
@@ -150,18 +151,18 @@ struct ResultPanelView: View {
             }
             HStack {
                 if showsLink {
-                    Button(model.showsSourceText ? "收起原文" : sourceLinkTitle) {
+                    Button(model.showsSourceText ? t.hideSourceText : sourceLinkTitle) {
                         model.showsSourceText.toggle()
                     }
                     .buttonStyle(TextLinkButtonStyle())
                     if model.source == .screenshot {
                         Text("·").foregroundStyle(Theme.textSecondary).font(.system(size: 12))
-                        Button("重新框选") { actions.perform(.recapture) }
+                        Button(t.recapture) { actions.perform(.recapture) }
                             .buttonStyle(TextLinkButtonStyle())
                     }
                 }
                 Spacer()
-                Text(model.isEditing ? "⌘E 完成编辑 · esc 关闭" : footerHint)
+                Text(model.isEditing ? t.finishEditingHint : footerHint)
                     .font(.system(size: 12))
                     .foregroundStyle(Theme.textSecondary)
             }
@@ -172,12 +173,12 @@ struct ResultPanelView: View {
     }
 
     private var sourceLinkTitle: String {
-        model.source == .screenshot ? "查看识别文字" : "查看原文"
+        model.source == .screenshot ? t.showRecognizedText : t.showSourceText
     }
 
     private var addTitle: String {
-        if model.isAdding { return "正在添加…" }
-        return model.checkedCount == 0 ? "未选择事项" : "添加 \(model.checkedCount) 项"
+        if model.isAdding { return t.addInProgress }
+        return model.checkedCount == 0 ? t.nothingSelected : t.addItems(model.checkedCount)
     }
 }
 

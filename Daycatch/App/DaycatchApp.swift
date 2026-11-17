@@ -20,13 +20,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         let arguments = ProcessInfo.processInfo.arguments
+        if let index = arguments.firstIndex(of: "--language"), arguments.indices.contains(index + 1),
+           let language = AppLanguage(rawValue: arguments[index + 1]) {
+            Localization.language = language
+        }
         if let index = arguments.firstIndex(of: "--snapshot"), arguments.indices.contains(index + 1) {
             DebugSnapshots.render(to: URL(fileURLWithPath: arguments[index + 1]))
             NSApp.terminate(nil)
             return
         }
-        NSApp.mainMenu = MainMenu.make()
+        // 先建 AppController：它会把设置里的界面语言写进 Localization，菜单文案才对
         controller = AppController()
+        NSApp.mainMenu = MainMenu.make()
         // 调试用：等菜单栏图标布局完成后再打开
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
             if arguments.contains("--open-settings") { self?.controller?.openSettings() }

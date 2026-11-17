@@ -5,7 +5,7 @@ struct AgendaPanelActions {
     var openSettings: () -> Void = {}
     var openPrivacy: (Permissions.Pane) -> Void = { _ in }
     /// 「输入识别」按钮的提示文字（带上快捷键）
-    var recognizeHint = "输入文字识别"
+    var recognizeHint = Localization.strings.recognizeTextButton
 }
 
 /// 点击菜单栏图标打开的日程面板：左栏日程、右栏待办，都按时间由近到远排列，
@@ -27,6 +27,8 @@ struct AgendaPanelView: View {
             : singleWidth
     }
 
+    private var t: Strings { Localization.strings }
+
     var body: some View {
         PanelSurface {
             VStack(spacing: 0) {
@@ -43,7 +45,7 @@ struct AgendaPanelView: View {
     private var header: some View {
         HStack(alignment: .top, spacing: 12) {
             VStack(alignment: .leading, spacing: 5) {
-                Text("接下来")
+                Text(t.upcoming)
                     .font(.system(size: 22, weight: .semibold))
                     .tracking(-0.44)
                 Text(subtitle)
@@ -53,13 +55,13 @@ struct AgendaPanelView: View {
             }
             Spacer(minLength: 8)
             HStack(spacing: 2) {
-                CornerIconButton(label: "输入文字识别", help: actions.recognizeHint, action: actions.recognize) {
+                CornerIconButton(label: t.recognizeTextButton, help: actions.recognizeHint, action: actions.recognize) {
                     Image(systemName: "text.cursor")
                         .font(.system(size: 13))
                         .foregroundStyle(Theme.textSecondary)
                         .frame(width: 26, height: 26)
                 }
-                CornerIconButton(label: "设置", help: "设置", action: actions.openSettings) {
+                CornerIconButton(label: t.settingsAccessibilityLabel, help: t.settings, action: actions.openSettings) {
                     SlidersIcon()
                         .frame(width: 15, height: 15)
                         .frame(width: 26, height: 26)
@@ -74,12 +76,12 @@ struct AgendaPanelView: View {
 
     private var subtitle: String {
         let day = AgendaText.dayTitle(Date())
-        guard model.hasLoaded else { return "\(day) · 正在读取…" }
-        if model.needsUnifiedPermission { return "\(day) · 需要访问权限" }
+        guard model.hasLoaded else { return "\(day) · \(t.loadingAgendaSubtitle)" }
+        if model.needsUnifiedPermission { return "\(day) · \(t.permissionAgendaSubtitle)" }
         var parts = [day]
-        if model.eventCount > 0 { parts.append("\(model.eventCount) 个日程") }
-        if model.todoCount > 0 { parts.append("\(model.todoCount) 个待办") }
-        if parts.count == 1 { parts.append("没有安排") }
+        if model.eventCount > 0 { parts.append(t.eventCount(model.eventCount)) }
+        if model.todoCount > 0 { parts.append(t.todoCount(model.todoCount)) }
+        if parts.count == 1 { parts.append(t.nothingScheduled) }
         return parts.joined(separator: " · ")
     }
 
@@ -90,7 +92,7 @@ struct AgendaPanelView: View {
         if !model.hasLoaded {
             placeholder {
                 ProgressView().controlSize(.small)
-                Text("正在读取日历和提醒事项…")
+                Text(t.readingCalendar)
                     .font(.system(size: 12))
                     .foregroundStyle(Theme.textSecondary)
             }
@@ -109,7 +111,7 @@ struct AgendaPanelView: View {
         return HStack(spacing: 0) {
             if model.showsEvents {
                 AgendaColumnView(
-                    title: "日程",
+                    title: t.eventsColumnTitle,
                     kind: .event,
                     column: model.eventsColumn,
                     itemCount: model.eventCount,
@@ -126,7 +128,7 @@ struct AgendaPanelView: View {
             }
             if model.showsTodos {
                 AgendaColumnView(
-                    title: "待办",
+                    title: t.todosColumnTitle,
                     kind: .todo,
                     column: model.todosColumn,
                     itemCount: model.todoCount,
@@ -144,16 +146,16 @@ struct AgendaPanelView: View {
             Image(systemName: "calendar.badge.exclamationmark")
                 .font(.system(size: 22))
                 .foregroundStyle(Theme.textSecondary)
-            Text("需要访问「日历」和「提醒事项」")
+            Text(t.permissionTitle)
                 .font(.system(size: 14, weight: .semibold))
-            Text("在系统设置的「隐私与安全性」中允许 Daycatch 访问后，这里会显示接下来的日程和未完成的待办。")
+            Text(t.permissionMessage)
                 .font(.system(size: 12))
                 .foregroundStyle(Theme.textSecondary)
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
             HStack(spacing: 8) {
-                Button("日历权限") { actions.openPrivacy(.calendars) }
-                Button("提醒事项权限") { actions.openPrivacy(.reminders) }
+                Button(t.calendarAccessButton) { actions.openPrivacy(.calendars) }
+                Button(t.remindersAccessButton) { actions.openPrivacy(.reminders) }
             }
             .buttonStyle(CapsuleButtonStyle())
             .padding(.top, 4)
@@ -165,13 +167,13 @@ struct AgendaPanelView: View {
             Image(systemName: "checkmark.circle")
                 .font(.system(size: 22))
                 .foregroundStyle(Theme.textSecondary)
-            Text("最近没有安排")
+            Text(t.noAgendaTitle)
                 .font(.system(size: 14, weight: .semibold))
-            Text("未来一年没有日程，也没有未完成的待办。")
+            Text(t.noAgendaMessage)
                 .font(.system(size: 12))
                 .foregroundStyle(Theme.textSecondary)
                 .multilineTextAlignment(.center)
-            Button("识别一段文字", action: actions.recognize)
+            Button(t.recognizeTextButton, action: actions.recognize)
                 .buttonStyle(CapsuleButtonStyle())
                 .padding(.top, 4)
         }
@@ -236,22 +238,22 @@ private struct AgendaColumnView: View {
                 .frame(maxHeight: .infinity)
 
             case .empty:
-                Text(kind == .event ? "未来一年没有日程" : "没有未完成的待办")
+                Text(kind == .event ? Localization.strings.noEventsInYear : Localization.strings.noOpenTodos)
                     .font(.system(size: 12))
                     .foregroundStyle(Theme.textSecondary)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             case .denied:
                 VStack(spacing: 10) {
-                    Text(kind == .event ? "没有「日历」的访问权限" : "没有「提醒事项」的访问权限")
+                    Text(Localization.strings.deniedColumnTitle(kind))
                         .font(.system(size: 12, weight: .semibold))
                         .multilineTextAlignment(.center)
-                    Text("在系统设置的「隐私与安全性」中允许 Daycatch 访问后，这里会显示\(kind == .event ? "日程" : "待办")。")
+                    Text(Localization.strings.deniedColumnMessage(kind))
                         .font(.system(size: 11))
                         .foregroundStyle(Theme.textSecondary)
                         .multilineTextAlignment(.center)
                         .lineSpacing(3)
-                    Button("打开系统设置", action: openPrivacy)
+                    Button(Localization.strings.openSystemSettings, action: openPrivacy)
                         .buttonStyle(CapsuleButtonStyle())
                         .padding(.top, 2)
                 }
@@ -315,7 +317,7 @@ private struct AgendaRowView: View {
                     .tracking(-0.6)
                     .monospacedDigit()
                     .frame(height: 23)
-                Text(entry.isOverdue ? "已过期" : AgendaText.weekday(date))
+                Text(entry.isOverdue ? Localization.strings.overdue : AgendaText.weekday(date))
                     .font(.system(size: 10))
                     .foregroundStyle(entry.isOverdue ? Theme.warning : Theme.textSecondary)
             } else {
@@ -323,7 +325,7 @@ private struct AgendaRowView: View {
                     .font(.system(size: 16, weight: .medium))
                     .foregroundStyle(Theme.textPlaceholder)
                     .frame(height: 33)
-                Text("无日期")
+                Text(Localization.strings.noDate)
                     .font(.system(size: 10))
                     .foregroundStyle(Theme.textSecondary)
             }
@@ -357,68 +359,36 @@ private struct CornerIconButton<Icon: View>: View {
 // MARK: - 文案
 
 private enum AgendaText {
-    private static let weekdays = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"]
+    private static var t: Strings { Localization.strings }
+    private static var dateText: DateText { DateText() }
 
-    private static var calendar: Calendar { .current }
-
-    /// "11月17日 周一"
-    static func dayTitle(_ date: Date) -> String {
-        "\(month(date))\(day(date))日 \(weekday(date))"
-    }
-
-    static func month(_ date: Date) -> String {
-        "\(calendar.component(.month, from: date))月"
-    }
-
-    static func day(_ date: Date) -> String {
-        "\(calendar.component(.day, from: date))"
-    }
-
-    static func monthDay(_ date: Date) -> String {
-        "\(month(date))\(day(date))日"
-    }
-
-    static func weekday(_ date: Date) -> String {
-        weekdays[(calendar.component(.weekday, from: date) - 1) % 7]
-    }
-
-    static func clock(_ date: Date) -> String {
-        let parts = calendar.dateComponents([.hour, .minute], from: date)
-        return String(format: "%02d:%02d", parts.hour ?? 0, parts.minute ?? 0)
-    }
-
-    static func timeRange(_ entry: AgendaEntry) -> String {
-        guard let start = entry.date else { return "" }
-        if entry.isAllDay {
-            if let end = entry.end, !calendar.isDate(start, inSameDayAs: end) {
-                return "全天 · 至 \(monthDay(end))"
-            }
-            return "全天"
-        }
-        guard let end = entry.end else { return clock(start) }
-        if calendar.isDate(start, inSameDayAs: end) {
-            return "\(clock(start)) – \(clock(end))"
-        }
-        return "\(clock(start)) – \(monthDay(end)) \(clock(end))"
-    }
+    /// "11月17日 周一" / "Mon, Nov 17"
+    static func dayTitle(_ date: Date) -> String { dateText.dayTitle(date) }
+    static func month(_ date: Date) -> String { dateText.month(date) }
+    static func day(_ date: Date) -> String { dateText.day(date) }
+    static func monthDay(_ date: Date) -> String { dateText.monthDay(date) }
+    static func weekday(_ date: Date) -> String { dateText.weekday(date) }
+    static func clock(_ date: Date) -> String { dateText.clock(date) }
 
     static func detail(for entry: AgendaEntry) -> String {
         var parts: [String] = []
         switch entry.kind {
         case .event:
-            let time = timeRange(entry)
-            if !time.isEmpty { parts.append(time) }
+            if let start = entry.date {
+                let time = dateText.eventTime(start: start, end: entry.end, isAllDay: entry.isAllDay)
+                if !time.isEmpty { parts.append(time) }
+            }
         case .todo:
             if let date = entry.date {
                 if entry.isOverdue {
-                    parts.append("已过期")
+                    parts.append(t.overdue)
                 } else if entry.hasTime {
-                    parts.append("\(clock(date)) 前完成")
+                    parts.append(t.dueBy(clock(date)))
                 } else {
-                    parts.append("当天截止")
+                    parts.append(t.dueThatDay)
                 }
             } else {
-                parts.append("无截止日期")
+                parts.append(t.noDueDate)
             }
         }
         if let location = entry.location { parts.append(location) }

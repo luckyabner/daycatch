@@ -1,6 +1,11 @@
 name: Daycatch
 options:
   bundleIdPrefix: com.luckyabner
+  developmentLanguage: zh-Hans
+  knownRegions:
+    - zh-Hans
+    - en
+    - Base
   deploymentTarget:
     macOS: "14.0"
   createIntermediateGroups: true
@@ -62,6 +67,7 @@ targets:
       - DaycatchTests
       - Daycatch/Model
       - Daycatch/AI
+      - Daycatch/Localization
       - Daycatch/Hotkeys/Shortcut.swift
       - Daycatch/Settings/CredentialStore.swift
     settings:

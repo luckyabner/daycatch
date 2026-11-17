@@ -57,7 +57,7 @@ struct DropdownPicker<Value: Hashable>: View {
     @Binding var selection: Value
     var options: [Option]
     var width: CGFloat
-    var placeholder = "请选择"
+    var placeholder: String? = nil
 
     var body: some View {
         Menu {
@@ -73,7 +73,7 @@ struct DropdownPicker<Value: Hashable>: View {
                 }
             }
         } label: {
-            Text(options.first { $0.value == selection }?.title ?? placeholder)
+            Text(options.first { $0.value == selection }?.title ?? placeholder ?? Localization.strings.choose)
                 .font(.system(size: 13))
                 .foregroundStyle(Theme.textPrimary)
                 .lineLimit(1)
@@ -142,8 +142,8 @@ struct SecretTextField: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .help(isRevealed ? "隐藏" : "显示明文")
-            .accessibilityLabel(isRevealed ? "隐藏 API Key" : "显示 API Key")
+            .help(isRevealed ? Localization.strings.hideSecret : Localization.strings.revealSecret)
+            .accessibilityLabel(isRevealed ? Localization.strings.hideAPIKey : Localization.strings.showAPIKey)
         }
         .padding(.leading, 10)
         .padding(.trailing, 6)
@@ -171,7 +171,9 @@ struct ShortcutRecorder: View {
                     .foregroundStyle(Theme.warning)
             }
             Button(action: toggleRecording) {
-                Text(isRecording ? "按下新的快捷键…" : (shortcut?.spacedDisplay ?? "未设置"))
+                Text(isRecording
+                    ? Localization.strings.shortcutRecording
+                    : (shortcut?.spacedDisplay ?? Localization.strings.shortcutUnset))
                     .foregroundStyle(isRecording ? accent : (shortcut == nil ? Theme.textSecondary : Theme.textPrimary))
                     .monospacedDigit()
             }
@@ -207,7 +209,7 @@ struct ShortcutRecorder: View {
         }
         let candidate = Shortcut(keyCode: event.keyCode, flags: flags)
         guard candidate.isValidGlobalShortcut else {
-            hint = "需要包含 ⌃ ⌥ 或 ⌘"
+            hint = Localization.strings.shortcutNeedsModifier
             return
         }
         onChange(candidate)

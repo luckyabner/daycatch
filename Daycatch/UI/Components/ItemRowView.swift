@@ -9,6 +9,7 @@ struct ItemRowView: View {
     var isEditing: Bool
 
     private let formatter = ItemFormatter()
+    private var t: Strings { Localization.strings }
 
     var body: some View {
         HStack(alignment: .top, spacing: metrics.columnSpacing) {
@@ -54,7 +55,7 @@ struct ItemRowView: View {
                     .foregroundStyle(Theme.textPlaceholder)
                     .frame(height: metrics.dateFontSize * 1.1)
                     .padding(.top, 13)
-                Text("无日期")
+                Text(t.noDate)
                     .font(.system(size: 11))
                     .foregroundStyle(Theme.textSecondary)
             }
@@ -65,7 +66,7 @@ struct ItemRowView: View {
     private var kindLine: some View {
         HStack(spacing: 8) {
             KindDot(kind: row.item.kind)
-            Text(row.item.kind == .event ? "日程 · \(calendarTitle)" : "待办 · 提醒事项")
+            Text(t.kindLine(row.item.kind, calendarTitle: calendarTitle))
                 .font(.system(size: 11))
                 .foregroundStyle(Theme.textSecondary)
         }
@@ -106,29 +107,32 @@ struct ItemEditor: View {
     var metrics: RowMetrics
     var defaultAlarmMinutes: Int?
 
+    private var t: Strings { Localization.strings }
     private var calendar: Calendar { ItemFormatter().calendar }
+    /// 英文的 Start / End / Alert 比中文两个字宽，标签列要放宽
+    private var labelWidth: CGFloat { t.isEnglish ? 40 : 26 }
 
     /// 编辑器里的提醒候选项：-1 = 不提醒，其余为提前分钟数
     private var alarmOptions: [DropdownPicker<Int>.Option] {
         [
-            .init(value: ExtractedItem.alarmNone, title: "不提醒"),
-            .init(value: 0, title: item.kind == .event ? "开始时" : "截止时"),
-            .init(value: 5, title: "提前 5 分钟"),
-            .init(value: 10, title: "提前 10 分钟"),
-            .init(value: 15, title: "提前 15 分钟"),
-            .init(value: 30, title: "提前 30 分钟"),
-            .init(value: 60, title: "提前 1 小时"),
-            .init(value: 1440, title: "提前 1 天"),
+            .init(value: ExtractedItem.alarmNone, title: t.noAlert),
+            .init(value: 0, title: t.alertOption(0, isTodo: item.kind == .todo)),
+            .init(value: 5, title: t.alertOption(5)),
+            .init(value: 10, title: t.alertOption(10)),
+            .init(value: 15, title: t.alertOption(15)),
+            .init(value: 30, title: t.alertOption(30)),
+            .init(value: 60, title: t.alertOption(60)),
+            .init(value: 1440, title: t.alertOption(1440)),
         ]
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
-                kindChip(.event, "日程")
-                kindChip(.todo, "待办")
+                kindChip(.event, t.eventKindChip)
+                kindChip(.todo, t.todoKindChip)
             }
-            EditorField(placeholder: "标题", text: $item.title, fontSize: metrics.titleFontSize, weight: .semibold)
+            EditorField(placeholder: t.titlePlaceholder, text: $item.title, fontSize: metrics.titleFontSize, weight: .semibold)
 
             switch item.kind {
             case .event: eventFields
@@ -141,22 +145,22 @@ struct ItemEditor: View {
     private var eventFields: some View {
         let components: DatePickerComponents = item.isAllDay ? [.date] : [.date, .hourAndMinute]
         HStack(spacing: 8) {
-            EditorLabel("开始")
+            EditorLabel(t.startLabel, width: labelWidth)
             DatePicker("", selection: startBinding, displayedComponents: components)
                 .labelsHidden()
                 .datePickerStyle(.field)
-            Toggle("全天", isOn: allDayBinding)
+            Toggle(t.allDayToggle, isOn: allDayBinding)
                 .toggleStyle(.checkbox)
                 .font(.system(size: 12))
         }
         HStack(spacing: 8) {
-            EditorLabel("结束")
+            EditorLabel(t.endLabel, width: labelWidth)
             DatePicker("", selection: endBinding, in: (item.start?.date ?? .distantPast)..., displayedComponents: components)
                 .labelsHidden()
                 .datePickerStyle(.field)
         }
-        EditorField(placeholder: "地点", text: optionalText(\.location), fontSize: 13)
-        EditorField(placeholder: "备注", text: optionalText(\.notes), fontSize: 13)
+        EditorField(placeholder: t.locationPlaceholder, text: optionalText(\.location), fontSize: 13)
+        EditorField(placeholder: t.notesPlaceholder, text: optionalText(\.notes), fontSize: 13)
         // 全天日程没法加提醒（和写入逻辑一致）
         if !item.isAllDay {
             alarmRow
@@ -166,23 +170,23 @@ struct ItemEditor: View {
     @ViewBuilder
     private var todoFields: some View {
         HStack(spacing: 8) {
-            Toggle("截止", isOn: hasDueBinding)
+            Toggle(t.dueToggle, isOn: hasDueBinding)
                 .toggleStyle(.checkbox)
                 .font(.system(size: 12))
             if let due = item.due {
                 DatePicker("", selection: dueBinding, displayedComponents: due.hasTime ? [.date, .hourAndMinute] : [.date])
                     .labelsHidden()
                     .datePickerStyle(.field)
-                Toggle("具体时间", isOn: dueHasTimeBinding)
+                Toggle(t.specificTimeToggle, isOn: dueHasTimeBinding)
                     .toggleStyle(.checkbox)
                     .font(.system(size: 12))
             }
         }
-        EditorField(placeholder: "备注", text: optionalText(\.notes), fontSize: 13)
+        EditorField(placeholder: t.notesPlaceholder, text: optionalText(\.notes), fontSize: 13)
         if item.due?.hasTime == true {
             alarmRow
         } else if item.due != nil {
-            Text("打开「具体时间」后可以加提醒")
+            Text(t.enableSpecificTimeHint)
                 .font(.system(size: 11))
                 .foregroundStyle(Theme.textSecondary)
         }
@@ -190,8 +194,8 @@ struct ItemEditor: View {
 
     private var alarmRow: some View {
         HStack(spacing: 8) {
-            EditorLabel("提醒")
-            EditorPicker(selection: alarmBinding, options: alarmOptions, width: 130)
+            EditorLabel(t.alertLabel, width: labelWidth)
+            EditorPicker(selection: alarmBinding, options: alarmOptions, width: t.isEnglish ? 170 : 130)
         }
     }
 
@@ -268,13 +272,19 @@ struct ItemEditor: View {
 
 private struct EditorLabel: View {
     var text: String
-    init(_ text: String) { self.text = text }
+    var width: CGFloat = 26
+    init(_ text: String, width: CGFloat = 26) {
+        self.text = text
+        self.width = width
+    }
 
     var body: some View {
         Text(text)
             .font(.system(size: 12))
             .foregroundStyle(Theme.textSecondary)
-            .frame(width: 26, alignment: .leading)
+            .lineLimit(1)
+            .fixedSize()
+            .frame(width: width, alignment: .leading)
     }
 }
 
@@ -316,7 +326,7 @@ private struct EditorPicker<Value: Hashable>: View {
             }
         } label: {
             HStack(spacing: 6) {
-                Text(options.first { $0.value == selection }?.title ?? "请选择")
+                Text(options.first { $0.value == selection }?.title ?? Localization.strings.choose)
                     .lineLimit(1)
                 Spacer(minLength: 0)
                 ChevronDownShape()

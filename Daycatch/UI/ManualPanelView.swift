@@ -15,6 +15,8 @@ struct ManualPanelView: View {
     var actions: PanelActions
     var manualActions: ManualPanelActions
 
+    private var t: Strings { Localization.strings }
+
     var body: some View {
         PanelSurface {
             VStack(alignment: .leading, spacing: 0) {
@@ -31,7 +33,7 @@ struct ManualPanelView: View {
 
     private var tabs: some View {
         HStack(alignment: .center) {
-            Text("识别")
+            Text(t.recognizeTab)
                 .font(.system(size: 13, weight: .semibold))
                 .padding(.bottom, 8)
                 .overlay(alignment: .bottom) {
@@ -45,7 +47,7 @@ struct ManualPanelView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("设置")
+            .accessibilityLabel(t.settingsAccessibilityLabel)
             .padding(.bottom, 8)
         }
         .padding(.top, 18)
@@ -58,17 +60,17 @@ struct ManualPanelView: View {
         VStack(alignment: .leading, spacing: 12) {
             InputTextView(
                 text: $model.inputText,
-                placeholder: "粘贴或输入包含时间安排的文字",
+                placeholder: t.manualInputPlaceholder,
                 focusToken: model.focusInputToken,
                 blurToken: model.blurInputToken
             )
             .frame(height: 84)
-            .accessibilityLabel("输入包含时间安排的文字")
+            .accessibilityLabel(t.manualInputAccessibilityLabel)
 
             HStack {
                 HStack(spacing: 14) {
-                    Button("粘贴", action: manualActions.paste)
-                    Button("截图", action: manualActions.screenshot)
+                    Button(t.paste, action: manualActions.paste)
+                    Button(t.screenshot, action: manualActions.screenshot)
                 }
                 .buttonStyle(TextLinkButtonStyle())
                 Spacer()
@@ -76,16 +78,16 @@ struct ManualPanelView: View {
                     HStack(spacing: 14) {
                         HStack(spacing: 6) {
                             ProgressView().controlSize(.mini)
-                            Text("识别中…")
+                            Text(t.recognizing)
                         }
                         .font(.system(size: 12))
                         .foregroundStyle(Theme.textSecondary)
-                        Button("取消", action: manualActions.discard)
+                        Button(t.cancel, action: manualActions.discard)
                             .buttonStyle(TextLinkButtonStyle())
-                            .help("中断这次识别，清空输入重新开始（⌘.）")
+                            .help(t.cancelRecognitionHelp)
                     }
                 } else {
-                    Button("⌘↩ 识别", action: manualActions.recognize)
+                    Button(t.recognizeShortcutButton, action: manualActions.recognize)
                         .buttonStyle(TextLinkButtonStyle())
                         .disabled(model.inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
@@ -118,17 +120,17 @@ struct ManualPanelView: View {
                 .disabled(!model.canAdd)
                 // 和 ① 一样可以行内编辑；「取消」则直接丢掉这次结果和文字，重新开始
                 HStack(spacing: 14) {
-                    Button(model.isEditing ? "完成编辑" : "编辑") {
+                    Button(model.isEditing ? t.done : t.edit) {
                         model.isEditing.toggle()
                     }
                     .buttonStyle(TextLinkButtonStyle())
                     .disabled(model.isAdding)
-                    .help(model.isEditing ? "完成编辑（⌘E）" : "修改识别出的事项（⌘E）")
+                    .help(model.isEditing ? t.finishEditingHelp : t.startEditingHelp)
 
-                    Button("取消", action: manualActions.discard)
+                    Button(t.cancel, action: manualActions.discard)
                         .buttonStyle(TextLinkButtonStyle())
                         .disabled(model.isAdding)
-                        .help("放弃这次识别结果并清空输入，重新开始（⌘.）")
+                        .help(t.discardResultsHelp)
                 }
             }
             .padding(.top, 16)
@@ -137,7 +139,7 @@ struct ManualPanelView: View {
         case .empty:
             Divider1px()
             NoticeBody(
-                notice: Notice(title: "没有识别到日程或待办", message: "可以补充时间、地点等信息后再识别一次。"),
+                notice: Notice(title: t.emptyResultTitle, message: t.emptyResultMessageManual),
                 perform: actions.perform,
                 compact: false,
                 horizontalPadding: 22
@@ -151,7 +153,7 @@ struct ManualPanelView: View {
     }
 
     private var addTitle: String {
-        if model.isAdding { return "正在添加…" }
-        return model.checkedCount == 0 ? "未选择事项" : "添加 \(model.checkedCount) 项"
+        if model.isAdding { return t.addInProgress }
+        return model.checkedCount == 0 ? t.nothingSelected : t.addItems(model.checkedCount)
     }
 }

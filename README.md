@@ -5,7 +5,7 @@
 A macOS menu bar app that turns text or a screenshot into calendar events and reminders. Select a message, paste a chat log, or capture a screen region — Daycatch extracts the dates, times, and tasks with an AI model of your choice, shows you what it found, and writes the confirmed items into **Calendar** and **Reminders** with one keystroke.
 
 <p align="center">
-  <img src="docs/screenshots/agenda.png" width="720" alt="Daycatch agenda panel showing upcoming events and todos">
+  <img src="docs/screenshots/en/agenda.png" width="720" alt="Daycatch agenda panel showing upcoming events and todos">
 </p>
 
 No more copying "Thursday 3pm, Q4 review, 3F meeting room" from WeChat into two different apps. Nothing is written until you confirm it, and everything written can be undone.
@@ -29,11 +29,12 @@ No more copying "Thursday 3pm, Q4 review, 3F meeting room" from WeChat into two 
 | **Inline editing** | `⌘E` edits a result in place — title, date, time, alarm, and destination list. |
 | **Inference markers** | Missing end times, vague "afternoon", guessed locations — all flagged, so a guess never looks like a fact. |
 | **Undo** | The post-write toast deletes the calendar events and reminders it just created. |
+| **Two interface languages** | 简体中文 or English, switchable in **Settings → General → Language**. Follows the system language by default, and the AI prompt follows the interface language too. |
 
 <p align="center">
-  <img src="docs/screenshots/selection.png" width="300" alt="Results panel after extracting selected text">
-  <img src="docs/screenshots/screenshot.png" width="300" alt="Results panel after extracting a screenshot">
-  <img src="docs/screenshots/manual.png" width="300" alt="Manual input panel extracting a pasted message">
+  <img src="docs/screenshots/en/selection.png" width="300" alt="Results panel after extracting selected text">
+  <img src="docs/screenshots/en/screenshot.png" width="300" alt="Results panel after extracting a screenshot">
+  <img src="docs/screenshots/en/manual.png" width="300" alt="Manual input panel extracting a pasted message">
 </p>
 
 ## Requirements
@@ -85,7 +86,7 @@ In the results panel: `↩` adds the checked items, `⌘E` edits a row inline, `
 Anthropic uses the native Messages API; every other provider goes through the OpenAI-compatible chat completions API. Base URL and model are both editable, so other compatible services (local proxies, gateways, self-hosted models) work too. Input is capped at 20,000 characters.
 
 <p align="center">
-  <img src="docs/screenshots/settings.png" width="640" alt="Daycatch settings: shortcuts, accent color, AI service, default destinations">
+  <img src="docs/screenshots/en/settings.png" width="640" alt="Daycatch settings: shortcuts, accent color, AI service, default destinations">
 </p>
 
 ## Permissions

@@ -1,0 +1,5 @@
+/* 系统权限对话框的说明（跟随系统语言，不跟随 App 内的语言设置） */
+"NSCalendarsFullAccessUsageDescription" = "Daycatch writes the events you confirm into Calendar and deletes them when you undo.";
+"NSCalendarsUsageDescription" = "Daycatch writes the events you confirm into Calendar.";
+"NSRemindersFullAccessUsageDescription" = "Daycatch writes the todos you confirm into Reminders and deletes them when you undo.";
+"NSRemindersUsageDescription" = "Daycatch writes the todos you confirm into Reminders.";

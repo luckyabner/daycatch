@@ -55,7 +55,7 @@ final class ExtractionServiceTests: XCTestCase {
 
 final class ExtractionPromptTests: XCTestCase {
     func testUserMessageContainsDateContext() {
-        let message = ExtractionPrompt.userMessage(text: "下周一前发给法务", now: referenceNow, timeZone: shanghai)
+        let message = ExtractionPrompt.userMessage(text: "下周一前发给法务", now: referenceNow, timeZone: shanghai, language: .chinese)
         XCTAssertTrue(message.contains("当前时间：2026-11-17T17:43:00+08:00（星期二）"))
         XCTAssertTrue(message.contains("时区：Asia/Shanghai（UTC+08:00）"))
         XCTAssertTrue(message.contains("- 2026-11-17 星期二（今天）"))
@@ -66,7 +66,7 @@ final class ExtractionPromptTests: XCTestCase {
 
     func testNegativeOffset() {
         let newYork = TimeZone(identifier: "America/New_York")!
-        let message = ExtractionPrompt.userMessage(text: "x", now: referenceNow, timeZone: newYork)
+        let message = ExtractionPrompt.userMessage(text: "x", now: referenceNow, timeZone: newYork, language: .chinese)
         XCTAssertTrue(message.contains("UTC-05:00"))
         XCTAssertTrue(message.contains("2026-11-17T04:43:00-05:00"))
     }
@@ -74,6 +74,7 @@ final class ExtractionPromptTests: XCTestCase {
     func testSchemaIsValidJSON() throws {
         let schema = try XCTUnwrap(JSONSerialization.jsonObject(with: ExtractionPrompt.responseSchema) as? [String: Any])
         XCTAssertEqual(schema["additionalProperties"] as? Bool, false)
-        XCTAssertTrue(ExtractionPrompt.system.contains("inferred"))
+        XCTAssertTrue(ExtractionPrompt.system(.chinese).contains("inferred"))
+        XCTAssertTrue(ExtractionPrompt.system(.english).contains("inferred"))
     }
 }

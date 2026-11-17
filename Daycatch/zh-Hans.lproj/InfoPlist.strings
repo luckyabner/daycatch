@@ -1,0 +1,5 @@
+/* 系统权限对话框的说明（跟随系统语言，不跟随 App 内的语言设置） */
+"NSCalendarsFullAccessUsageDescription" = "Daycatch 会把你确认过的日程写入「日历」，撤销时删除刚写入的日程。";
+"NSCalendarsUsageDescription" = "Daycatch 会把你确认过的日程写入「日历」。";
+"NSRemindersFullAccessUsageDescription" = "Daycatch 会把你确认过的待办写入「提醒事项」，撤销时删除刚写入的待办。";
+"NSRemindersUsageDescription" = "Daycatch 会把你确认过的待办写入「提醒事项」。";

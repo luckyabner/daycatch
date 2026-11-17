@@ -17,7 +17,7 @@ final class ToastModel {
     var detail = ""
     var state: State = .added
     /// 卡片右侧按钮的文案：默认「撤销」，引导提示时换成「去设置」之类
-    var actionTitle = "撤销"
+    var actionTitle = Localization.strings.undo
     var isHovering = false
 }
 
@@ -73,15 +73,15 @@ struct ToastView: View {
     private var title: String {
         switch model.state {
         case .added, .undoing, .hint: model.title
-        case .undone: "已撤销"
-        case .failed: "操作失败"
+        case .undone: Localization.strings.toastUndoneTitle
+        case .failed: Localization.strings.toastFailedTitle
         }
     }
 
     private var detail: String {
         switch model.state {
         case .added, .undoing, .hint: model.detail
-        case .undone: "刚写入的事项已删除"
+        case .undone: Localization.strings.toastUndoneDetail
         case .failed(let message): message
         }
     }

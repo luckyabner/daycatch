@@ -9,12 +9,13 @@ enum CalendarAccessError: Error, LocalizedError, Equatable {
     case saveFailed(String)
 
     var errorDescription: String? {
-        switch self {
-        case .calendarDenied: "没有「日历」的访问权限"
-        case .remindersDenied: "没有「提醒事项」的访问权限"
-        case .noCalendar: "找不到可写入的日历"
-        case .noReminderList: "找不到可写入的提醒事项列表"
-        case .saveFailed(let message): "写入失败：\(message)"
+        let t = Localization.strings
+        return switch self {
+        case .calendarDenied: t.calendarDenied
+        case .remindersDenied: t.remindersDenied
+        case .noCalendar: t.noWritableCalendar
+        case .noReminderList: t.noWritableReminderList
+        case .saveFailed(let message): t.saveFailed(message)
         }
     }
 
@@ -38,9 +39,10 @@ struct WriteReceipt: Sendable {
     var totalCount: Int { eventIdentifiers.count + reminderIdentifiers.count }
 
     var summary: String {
+        let t = Localization.strings
         var parts: [String] = []
-        if !eventIdentifiers.isEmpty { parts.append("日历「\(calendarTitle)」\(eventIdentifiers.count) 项") }
-        if !reminderIdentifiers.isEmpty { parts.append("提醒事项「\(reminderListTitle)」\(reminderIdentifiers.count) 项") }
+        if !eventIdentifiers.isEmpty { parts.append(t.receiptCalendar(title: calendarTitle, count: eventIdentifiers.count)) }
+        if !reminderIdentifiers.isEmpty { parts.append(t.receiptReminders(title: reminderListTitle, count: reminderIdentifiers.count)) }
         return parts.joined(separator: " · ")
     }
 }
@@ -243,7 +245,7 @@ final class CalendarWriter {
         var parts: [String] = []
         if let notes = item.notes { parts.append(notes) }
         if let source = options.sourceText?.trimmingCharacters(in: .whitespacesAndNewlines), !source.isEmpty {
-            parts.append("原文：\n\(source)")
+            parts.append(Localization.strings.sourceNote(source))
         }
         return parts.isEmpty ? nil : parts.joined(separator: "\n\n")
     }

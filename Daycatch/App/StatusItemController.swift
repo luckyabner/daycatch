@@ -15,7 +15,7 @@ final class StatusItemController: NSObject {
         button.target = self
         button.action = #selector(handleClick)
         button.sendAction(on: [.leftMouseUp, .rightMouseUp])
-        button.toolTip = "Daycatch · 日程与待办"
+        button.toolTip = Localization.strings.statusItemTooltip
     }
 
     /// 图标按钮在屏幕上的位置，用于定位弹窗；按钮尚未布局到菜单栏时返回 nil
@@ -31,6 +31,11 @@ final class StatusItemController: NSObject {
         statusItem.button?.highlight(highlighted)
     }
 
+    /// 语言切换后刷新悬停提示（菜单每次弹出时现建，不用缓存）
+    func refreshLocalizedText() {
+        statusItem.button?.toolTip = Localization.strings.statusItemTooltip
+    }
+
     @objc private func handleClick() {
         let event = NSApp.currentEvent
         if event?.type == .rightMouseUp || event?.modifierFlags.contains(.control) == true {
@@ -42,11 +47,12 @@ final class StatusItemController: NSObject {
 
     private func showMenu() {
         let menu = NSMenu()
-        let settings = NSMenuItem(title: "设置…", action: #selector(openSettings), keyEquivalent: ",")
+        let t = Localization.strings
+        let settings = NSMenuItem(title: "\(t.settings)…", action: #selector(openSettings), keyEquivalent: ",")
         settings.target = self
         menu.addItem(settings)
         menu.addItem(.separator())
-        menu.addItem(NSMenuItem(title: "退出 Daycatch", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: t.menuQuit, action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
         statusItem.menu = menu
         statusItem.button?.performClick(nil)
         statusItem.menu = nil

@@ -74,11 +74,11 @@ extension EnvironmentValues {
 }
 
 extension View {
-    /// 设计稿只有浅色版：统一锁定浅色外观。
-    func daycatchStyle(accent: Color) -> some View {
+    /// 设计稿只有浅色版：统一锁定浅色外观；locale 跟着界面语言（DatePicker、日期文案用）。
+    func daycatchStyle(accent: Color, language: AppLanguage = Localization.language) -> some View {
         environment(\.dcAccent, accent)
             .environment(\.colorScheme, .light)
-            .environment(\.locale, Locale(identifier: "zh_CN"))
+            .environment(\.locale, language.locale)
             .foregroundStyle(Theme.textPrimary)
             .font(.system(size: 13))
     }

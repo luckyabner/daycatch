@@ -30,7 +30,7 @@ enum TextRecognizer {
     enum Failure: Error, LocalizedError {
         case unreadableImage
 
-        var errorDescription: String? { "无法读取截图" }
+        var errorDescription: String? { Localization.strings.screenshotUnreadable }
     }
 
     /// 在后台线程用 Vision 识别文字（简体中文 + 英文），按阅读顺序拼接。

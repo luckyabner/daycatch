@@ -34,13 +34,13 @@ struct AgendaService {
             // 重复日程的多次 occurrence 共用 calendarItemIdentifier，必须加上开始时间才是唯一 ID
             id: Self.identifier(event.calendarItemIdentifier, at: start),
             kind: .event,
-            title: Self.clean(event.title) ?? "未命名日程",
+            title: Self.clean(event.title) ?? Localization.strings.untitledEvent,
             date: start,
             end: event.endDate,
             isAllDay: event.isAllDay,
             hasTime: !event.isAllDay,
             location: Self.clean(event.location),
-            calendarTitle: Self.clean(event.calendar?.title) ?? "日历",
+            calendarTitle: Self.clean(event.calendar?.title) ?? Localization.strings.calendarFallbackName,
             calendarColorHex: Self.hex(event.calendar?.color),
             isOverdue: false
         )
@@ -86,13 +86,13 @@ struct AgendaService {
             // 同样避免重复提醒的 ID 冲突
             id: identifier(reminder.calendarItemIdentifier, at: due),
             kind: .todo,
-            title: clean(reminder.title) ?? "未命名待办",
+            title: clean(reminder.title) ?? Localization.strings.untitledTodo,
             date: due,
             end: nil,
             isAllDay: false,
             hasTime: hasTime,
             location: clean(reminder.location),
-            calendarTitle: clean(reminder.calendar?.title) ?? "提醒事项",
+            calendarTitle: clean(reminder.calendar?.title) ?? Localization.strings.remindersFallbackName,
             calendarColorHex: hex(reminder.calendar?.color),
             isOverdue: isOverdue
         )

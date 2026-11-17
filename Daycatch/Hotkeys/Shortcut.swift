@@ -104,11 +104,7 @@ enum HotkeyAction: String, CaseIterable, Sendable {
     case manual
 
     var title: String {
-        switch self {
-        case .selection: "识别选中文字"
-        case .screenshot: "截图识别"
-        case .manual: "打开输入框"
-        }
+        Localization.strings.hotkeyTitle(self)
     }
 
     var defaultShortcut: Shortcut {

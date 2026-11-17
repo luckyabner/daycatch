@@ -24,6 +24,9 @@ final class AppController {
     private var isCapturing = false
 
     init() {
+        // 界面语言要在建面板 / 提示之前就位
+        Localization.language = settings.language
+        statusItem.refreshLocalizedText()
         statusItem.onClick = { [weak self] in self?.toggleAgenda() }
         statusItem.onOpenSettings = { [weak self] in self?.openSettings() }
 
@@ -41,6 +44,9 @@ final class AppController {
         configureManualPanel()
         configureToast { [weak self] in self?.undoLastWrite() }
     }
+
+    /// 当前语言的文案（语言切换后会重建所有面板）
+    private var t: Strings { Localization.strings }
 
     // MARK: - 菜单栏日程面板
 
@@ -67,7 +73,7 @@ final class AppController {
                         self?.openSettings()
                     },
                     openPrivacy: { pane in Permissions.openSystemSettings(pane) },
-                    recognizeHint: "输入文字识别（\(shortcutText(.manual, compact: true))）"
+                    recognizeHint: t.recognizeHint(shortcutText(.manual, compact: true))
                 )
             )
             .daycatchStyle(accent: settings.accent)
@@ -238,8 +244,8 @@ final class AppController {
             // 我们不再叠一个自制的权限面板，改用右下角不打断操作的小卡片
             Permissions.promptAccessibility()
             showPermissionHint(
-                title: "需要开启「辅助功能」权限",
-                detail: "允许后再按一次 \(shortcutText(.selection)) 即可。",
+                title: t.accessibilityPermissionTitle,
+                detail: t.accessibilityPermissionDetail(shortcutText(.selection)),
                 pane: .accessibility
             )
             return
@@ -252,8 +258,8 @@ final class AppController {
             let model = RecognitionModel(source: .selection)
             guard let selection else {
                 model.phase = .notice(Notice(
-                    title: "没有读到选中的文字",
-                    message: "先在聊天或邮件里选中一段文字，再按 \(shortcutText(.selection))。如果这个应用不支持读取，可以复制后在菜单栏的输入框里粘贴识别。",
+                    title: t.noSelectedTextTitle,
+                    message: t.noSelectedTextMessage(shortcutText(.selection)),
                     actions: [.openManualInput]
                 ))
                 showResult(model, near: mouse)
@@ -276,8 +282,8 @@ final class AppController {
             // 同上：授权对话框交给系统，应用只给一条可忽略的提示
             Permissions.requestScreenRecording()
             showPermissionHint(
-                title: "需要开启「屏幕录制」权限",
-                detail: "允许后重新截图；未生效就重启一次 Daycatch。",
+                title: t.screenRecordingPermissionTitle,
+                detail: t.screenRecordingPermissionDetail,
                 pane: .screenRecording
             )
             return
@@ -291,7 +297,7 @@ final class AppController {
                 url = try await ScreenCapture.captureInteractive()
             } catch {
                 let model = RecognitionModel(source: .screenshot)
-                model.phase = .notice(Notice(title: "无法启动截图", message: error.localizedDescription, actions: [.recapture]))
+                model.phase = .notice(Notice(title: t.captureFailedTitle, message: error.localizedDescription, actions: [.recapture]))
                 showResult(model, near: NSEvent.mouseLocation)
                 return
             }
@@ -299,7 +305,7 @@ final class AppController {
             defer { try? FileManager.default.removeItem(at: url) }
 
             let model = RecognitionModel(source: .screenshot)
-            model.phase = .loading("正在本机识别文字…")
+            model.phase = .loading(t.recognizingOnDevice)
             showResult(model, near: NSEvent.mouseLocation)
 
             do {
@@ -308,15 +314,15 @@ final class AppController {
                 guard resultModel === model else { return }
                 guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
                     model.phase = .notice(Notice(
-                        title: "截图里没有识别到文字",
-                        message: "换一个区域再试，或者框选得大一些。",
+                        title: t.noTextInScreenshotTitle,
+                        message: t.noTextInScreenshotMessage,
                         actions: [.recapture]
                     ))
                     return
                 }
                 recognize(model, text: text)
             } catch {
-                model.phase = .notice(Notice(title: "文字识别失败", message: error.localizedDescription, actions: [.recapture]))
+                model.phase = .notice(Notice(title: t.textRecognitionFailedTitle, message: error.localizedDescription, actions: [.recapture]))
             }
         }
     }
@@ -327,16 +333,10 @@ final class AppController {
         resultModel?.task?.cancel()
         prepare(model)
         resultModel = model
-        let hint = model.source == .screenshot
-            ? "\(shortcutText(.screenshot, compact: true)) 截图识别 · esc 关闭"
-            : "⌘E 编辑 · esc 关闭"
         resultHost.panel.keyHandler = { [weak self, weak model] command in
             self?.handleKey(command, model: model) ?? false
         }
-        resultHost.setContent(
-            ResultPanelView(model: model, actions: panelActions(for: model), footerHint: hint)
-                .daycatchStyle(accent: settings.accent)
-        )
+        updateResultContent(model)
         // 出现在鼠标右下方；空间不够时 PanelHost 会挪回屏幕内
         var topLeft = NSPoint(x: mouse.x + 16, y: mouse.y - 16)
         if let screen = NSScreen.screens.first(where: { $0.frame.contains(mouse) }) {
@@ -346,6 +346,17 @@ final class AppController {
             }
         }
         resultHost.show(topLeft: topLeft)
+    }
+
+    /// 结果面板的文案随语言变化：只换内容，位置和尺寸由 PanelHost 保持
+    private func updateResultContent(_ model: RecognitionModel) {
+        let hint = model.source == .screenshot
+            ? t.screenshotHint(shortcutText(.screenshot, compact: true))
+            : t.editHint
+        resultHost.setContent(
+            ResultPanelView(model: model, actions: panelActions(for: model), footerHint: hint)
+                .daycatchStyle(accent: settings.accent, language: Localization.language)
+        )
     }
 
     func closeResult() {
@@ -358,14 +369,14 @@ final class AppController {
 
     private func prepare(_ model: RecognitionModel) {
         model.defaultAlarmMinutes = settings.defaultAlarmMinutes
-        model.eventCalendarTitle = calendarWriter.resolveEventCalendar(id: settings.eventCalendarID)?.title ?? "日历"
+        model.eventCalendarTitle = calendarWriter.resolveEventCalendar(id: settings.eventCalendarID)?.title ?? t.calendarFallbackName
     }
 
     private func recognize(_ model: RecognitionModel, text: String) {
         model.task?.cancel()
         model.sourceText = text
         model.addError = nil
-        model.phase = .loading("AI 正在提取日程和待办…")
+        model.phase = .loading(t.extracting)
         model.isEditing = false
 
         let service: ExtractionService
@@ -391,42 +402,44 @@ final class AppController {
     }
 
     static func notice(for error: Error) -> Notice {
+        let t = Localization.strings
         switch error {
         case AIError.missingAPIKey:
-            return Notice(title: "还没有填写 API Key", message: "在设置的「AI 服务」里选择服务商并填写 API Key 后再试。", actions: [.openSettings])
+            return Notice(title: t.aiMissingKeyTitle, message: t.aiMissingKeyMessage, actions: [.openSettings])
         case AIError.missingModel:
-            return Notice(title: "还没有填写模型名称", message: "在设置的「AI 服务」里填写模型名称。", actions: [.openSettings])
+            return Notice(title: t.aiMissingModelTitle, message: t.aiMissingModelMessage, actions: [.openSettings])
         case AIError.invalidBaseURL:
-            return Notice(title: "服务地址无效", message: "请检查「Base URL」，例如 https://api.example.com/v1。", actions: [.openSettings])
+            return Notice(title: t.aiInvalidBaseURLTitle, message: t.aiInvalidBaseURLMessage, actions: [.openSettings])
         case AIError.offline:
-            return Notice(title: "网络未连接", message: "连接网络后重试。识别需要把文字发送给 AI 服务。", actions: [.retry])
+            return Notice(title: t.aiOfflineTitle, message: t.aiOfflineMessage, actions: [.retry])
         case AIError.timedOut:
-            return Notice(title: "请求超时", message: "AI 服务响应太慢，可以稍后重试。", actions: [.retry])
+            return Notice(title: t.aiTimedOutTitle, message: t.aiTimedOutMessage, actions: [.retry])
         case AIError.unauthorized:
-            return Notice(title: "API Key 无效", message: "服务商拒绝了这个 Key，请检查是否填写正确、是否已过期。", actions: [.openSettings])
+            return Notice(title: t.aiUnauthorizedTitle, message: t.aiUnauthorizedMessage, actions: [.openSettings])
         case AIError.forbidden(let message):
-            return Notice(title: "没有访问权限", message: message, actions: [.openSettings])
+            return Notice(title: t.aiForbiddenTitle, message: message, actions: [.openSettings])
         case AIError.modelNotFound(let model):
-            return Notice(title: "找不到模型「\(model)」", message: "请在设置里检查模型名称是否正确，以及当前 Key 是否能使用该模型。", actions: [.openSettings])
+            return Notice(title: t.aiModelNotFoundTitle(model), message: t.aiModelNotFoundMessage, actions: [.openSettings])
         case AIError.rateLimited:
-            return Notice(title: "请求太频繁或额度不足", message: "稍等片刻再试，或检查账户余额。", actions: [.retry])
+            return Notice(title: t.aiRateLimitedTitle, message: t.aiRateLimitedMessage, actions: [.retry])
         case AIError.refused:
-            return Notice(title: "AI 拒绝处理这段文字", message: "可以换一段文字，或在设置里换一个模型。", actions: [.retry])
+            return Notice(title: t.aiRefusedTitle, message: t.aiRefusedMessage, actions: [.retry])
         case let error as ExtractionError:
-            return Notice(title: "AI 返回的内容无法解析", message: "\(error.localizedDescription)。可以重试一次，或在设置里换一个模型。", actions: [.retry])
+            return Notice(title: t.aiUnparseableTitle, message: t.aiUnparseableMessage(error.localizedDescription), actions: [.retry])
         case let error as CalendarAccessError:
             return Notice(title: error.localizedDescription, message: calendarHelp(error), actions: error.recoveryAction.map { [$0] } ?? [])
         default:
-            return Notice(title: "识别失败", message: error.localizedDescription, actions: [.retry])
+            return Notice(title: t.recognitionFailedTitle, message: error.localizedDescription, actions: [.retry])
         }
     }
 
     private static func calendarHelp(_ error: CalendarAccessError) -> String {
-        switch error {
-        case .calendarDenied: "在系统设置的「隐私与安全性 → 日历」中允许 Daycatch 完全访问后再添加。"
-        case .remindersDenied: "在系统设置的「隐私与安全性 → 提醒事项」中允许 Daycatch 完全访问后再添加。"
-        case .noCalendar, .noReminderList: "在设置的「默认写入」中选择一个可写入的列表。"
-        case .saveFailed: "请稍后重试。"
+        let t = Localization.strings
+        return switch error {
+        case .calendarDenied: t.calendarsDeniedHelp
+        case .remindersDenied: t.remindersDeniedHelp
+        case .noCalendar, .noReminderList: t.noDestinationHelp
+        case .saveFailed: t.saveFailedHelp
         }
     }
 
@@ -475,9 +488,9 @@ final class AppController {
 
     private func showToast(for receipt: WriteReceipt) {
         toastReceipt = receipt
-        toastModel.title = "已添加 \(receipt.totalCount) 项"
+        toastModel.title = t.addedItemsTitle(receipt.totalCount)
         toastModel.detail = receipt.summary
-        toastModel.actionTitle = "撤销"
+        toastModel.actionTitle = t.undo
         toastModel.state = .added
         configureToast { [weak self] in self?.undoLastWrite() }
         let visible = (NSScreen.main ?? NSScreen.screens[0]).visibleFrame
@@ -491,7 +504,7 @@ final class AppController {
         toastReceipt = nil
         toastModel.title = title
         toastModel.detail = detail
-        toastModel.actionTitle = "去设置"
+        toastModel.actionTitle = t.toastOpenSettings
         toastModel.state = .hint
         configureToast { [weak self] in
             // 点「去设置」后立即收起卡片：接下来要看的是系统设置窗口
@@ -642,14 +655,28 @@ final class AppController {
         rebuildAgendaPanel()
     }
 
+    /// 语言修改后：重新生成菜单、菜单栏文案和所有已打开的面板
+    func applyLanguage() {
+        Localization.language = settings.language
+        NSApp.mainMenu = MainMenu.make()
+        statusItem.refreshLocalizedText()
+        settingsWindow?.refreshLocalizedText()
+        configureManualPanel()
+        rebuildAgendaPanel()
+        if let resultModel { updateResultContent(resultModel) }
+        if toastHost.isVisible {
+            toastModel.actionTitle = toastModel.state == .hint ? t.toastOpenSettings : t.undo
+        }
+    }
+
     private func refreshCalendarTitles() {
-        let title = calendarWriter.resolveEventCalendar(id: settings.eventCalendarID)?.title ?? "日历"
+        let title = calendarWriter.resolveEventCalendar(id: settings.eventCalendarID)?.title ?? Localization.strings.calendarFallbackName
         manualModel.eventCalendarTitle = title
         resultModel?.eventCalendarTitle = title
     }
 
     func shortcutText(_ action: HotkeyAction, compact: Bool = false) -> String {
-        guard let shortcut = settings.shortcut(for: action) else { return "快捷键" }
+        guard let shortcut = settings.shortcut(for: action) else { return t.shortcutFallbackName }
         return compact ? shortcut.compactDisplay : shortcut.spacedDisplay
     }
 
@@ -657,8 +684,8 @@ final class AppController {
     func testAIConnection() async -> Result<String, Error> {
         do {
             let service = ExtractionService(provider: try AIProviderFactory.make(settings.aiConfiguration()))
-            let result = try await service.extract(text: "明天下午 3 点在 2 楼会议室开周会")
-            return .success("连接正常，识别到 \(result.items.count) 项")
+            let result = try await service.extract(text: t.connectionTestText)
+            return .success(t.testSucceeded(result.items.count))
         } catch {
             return .failure(error)
         }

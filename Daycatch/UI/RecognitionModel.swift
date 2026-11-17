@@ -7,10 +7,11 @@ enum RecognitionSource: Sendable {
     case manual
 
     var label: String {
-        switch self {
-        case .selection: "来自选中文字"
-        case .screenshot: "来自截图"
-        case .manual: "手动输入"
+        let t = Localization.strings
+        return switch self {
+        case .selection: t.sourceSelection
+        case .screenshot: t.sourceScreenshot
+        case .manual: t.sourceManual
         }
     }
 
@@ -35,12 +36,13 @@ enum RecoveryAction: Equatable, Sendable {
     case openManualInput
 
     var title: String {
-        switch self {
-        case .retry: "重试"
-        case .openSettings: "打开设置"
-        case .openAccessibilitySettings, .openScreenRecordingSettings, .openCalendarPrivacy, .openRemindersPrivacy: "打开系统设置"
-        case .recapture: "重新框选"
-        case .openManualInput: "手动输入"
+        let t = Localization.strings
+        return switch self {
+        case .retry: t.retry
+        case .openSettings: t.openSettings
+        case .openAccessibilitySettings, .openScreenRecordingSettings, .openCalendarPrivacy, .openRemindersPrivacy: t.openSystemSettings
+        case .recapture: t.recapture
+        case .openManualInput: t.manualInput
         }
     }
 }
@@ -89,7 +91,7 @@ final class RecognitionModel {
     var blurInputToken = 0
 
     /// 日程所在日历的名字，显示在 "日程 · 工作"
-    var eventCalendarTitle = "日历"
+    var eventCalendarTitle = Localization.strings.calendarFallbackName
     var defaultAlarmMinutes: Int?
 
     var task: Task<Void, Never>?

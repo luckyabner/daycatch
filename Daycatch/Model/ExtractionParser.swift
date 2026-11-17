@@ -6,10 +6,11 @@ enum ExtractionError: Error, Equatable, LocalizedError {
     case invalidStructure(String)
 
     var errorDescription: String? {
-        switch self {
-        case .emptyResponse: "AI 没有返回任何内容"
-        case .notJSON: "AI 返回的内容不是有效的 JSON"
-        case .invalidStructure(let detail): "AI 返回的结构不符合要求：\(detail)"
+        let t = Localization.strings
+        return switch self {
+        case .emptyResponse: t.extractionEmptyResponse
+        case .notJSON: t.extractionNotJSON
+        case .invalidStructure(let detail): t.extractionInvalidStructure(detail)
         }
     }
 }
@@ -44,17 +45,17 @@ struct ExtractionParser: Sendable {
                 rawItems = [dict]
                 summary = nil
             } else {
-                throw ExtractionError.invalidStructure("items 不是数组")
+                throw ExtractionError.invalidStructure(Localization.strings.parserItemsNotArray)
             }
         } else if let array = object as? [Any] {
             rawItems = array
         } else {
-            throw ExtractionError.invalidStructure("顶层不是对象")
+            throw ExtractionError.invalidStructure(Localization.strings.parserTopLevelNotObject)
         }
 
         let items = rawItems.compactMap { ($0 as? [String: Any]).flatMap(parseItem) }
         if items.isEmpty && !rawItems.isEmpty {
-            throw ExtractionError.invalidStructure("没有一个事项包含可用的标题和时间")
+            throw ExtractionError.invalidStructure(Localization.strings.parserNoUsableItem)
         }
         return ExtractionResult(summary: summary, items: items)
     }

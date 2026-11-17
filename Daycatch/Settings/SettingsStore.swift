@@ -20,6 +20,8 @@ final class SettingsStore {
     var defaultAlarmMinutes: Int? { didSet { save(defaultAlarmMinutes ?? -1, .defaultAlarm) } }
 
     // MARK: 通用
+    /// 界面语言；`.system` 跟随系统首选语言
+    var language: AppLanguage { didSet { save(language.rawValue, .language) } }
     var accentHex: String { didSet { save(accentHex, .accent) } }
     private var shortcutStorage: [String: Data] { didSet { save(shortcutStorage, .shortcuts) } }
 
@@ -40,6 +42,7 @@ final class SettingsStore {
             let value = defaults.integer(forKey: Key.defaultAlarm.rawValue)
             defaultAlarmMinutes = value < 0 ? nil : value
         }
+        language = defaults.string(forKey: Key.language.rawValue).flatMap(AppLanguage.init) ?? .system
         accentHex = defaults.string(forKey: Key.accent.rawValue) ?? Theme.accentOptions[0]
         shortcutStorage = defaults.dictionary(forKey: Key.shortcuts.rawValue) as? [String: Data] ?? [:]
         attachSourceToNotes = defaults.bool(forKey: Key.attachSource.rawValue)
@@ -96,6 +99,7 @@ final class SettingsStore {
         case eventCalendarID = "write.eventCalendarID"
         case reminderListID = "write.reminderListID"
         case defaultAlarm = "write.defaultAlarmMinutes"
+        case language = "general.language"
         case accent = "general.accent"
         case shortcuts = "general.shortcuts"
         case attachSource = "privacy.attachSourceToNotes"

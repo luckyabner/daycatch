@@ -9,6 +9,7 @@ struct SettingsEnvironment {
     var testConnection: () async -> Result<String, Error>
     var shortcutsChanged: () -> Void
     var accentChanged: () -> Void
+    var languageChanged: () -> Void
     var setRecordingShortcut: (Bool) -> Void
 }
 
@@ -17,11 +18,12 @@ enum SettingsPane: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 
     var title: String {
-        switch self {
-        case .general: "通用"
-        case .ai: "AI 服务"
-        case .targets: "日历"
-        case .privacy: "隐私"
+        let t = Localization.strings
+        return switch self {
+        case .general: t.paneGeneral
+        case .ai: t.paneAI
+        case .targets: t.paneCalendar
+        case .privacy: t.panePrivacy
         }
     }
 }
@@ -31,6 +33,8 @@ struct SettingsView: View {
     @Bindable var settings: SettingsStore
     var env: SettingsEnvironment
     @State private var selectedPane: SettingsPane = .general
+
+    private var t: Strings { Localization.strings }
 
     var body: some View {
         HStack(spacing: 0) {
@@ -103,8 +107,10 @@ private struct GeneralSection: View {
     @State private var launchError: String?
     @State private var conflict: String?
 
+    private var t: Strings { Localization.strings }
+
     var body: some View {
-        SettingsSection(title: "快捷键") {
+        SettingsSection(title: t.sectionShortcuts) {
             ForEach(HotkeyAction.allCases, id: \.self) { action in
                 SettingsRow(verticalPadding: 12) {
                     Text(action.title)
@@ -119,14 +125,14 @@ private struct GeneralSection: View {
             if let conflict {
                 SettingsNote(text: conflict).foregroundStyle(Theme.warning)
             }
-            SettingsNote(text: "选中识别需开启“辅助功能”权限，读取失败时自动改用 ⌘C。如果开关已打开仍提示无权限，在列表里用「−」移除 Daycatch 后重新添加。")
+            SettingsNote(text: t.shortcutsNote)
             SettingsRow {
-                Text("辅助功能权限")
+                Text(t.accessibilityRow)
             } control: {
                 if accessibilityTrusted {
-                    Text("已开启").font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
+                    Text(t.accessibilityEnabled).font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
                 } else {
-                    Button("去开启") {
+                    Button(t.accessibilityTurnOn) {
                         Permissions.promptAccessibility()
                         Permissions.openSystemSettings(.accessibility)
                     }
@@ -134,7 +140,7 @@ private struct GeneralSection: View {
                 }
             }
             SettingsRow {
-                Text("点缀色")
+                Text(t.accentColorRow)
             } control: {
                 HStack(spacing: 10) {
                     ForEach(Theme.accentOptions, id: \.self) { hex in
@@ -163,7 +169,17 @@ private struct GeneralSection: View {
                 .padding(.trailing, 3)
             }
             SettingsRow {
-                Text("登录时启动")
+                Text(t.languageRow)
+            } control: {
+                DropdownPicker(
+                    selection: $settings.language,
+                    options: AppLanguage.allCases.map { .init(value: $0, title: t.languageName($0)) },
+                    width: 200
+                )
+                .onChange(of: settings.language) { _, _ in env.languageChanged() }
+            }
+            SettingsRow {
+                Text(t.launchAtLoginRow)
             } control: {
                 HStack(spacing: 8) {
                     if let launchError {
@@ -183,7 +199,7 @@ private struct GeneralSection: View {
 
     private func update(_ shortcut: Shortcut?, for action: HotkeyAction) {
         if let shortcut, let other = HotkeyAction.allCases.first(where: { $0 != action && settings.shortcut(for: $0) == shortcut }) {
-            conflict = "\(shortcut.spacedDisplay) 已用于「\(other.title)」，请换一个组合。"
+            conflict = t.shortcutConflict(shortcut.spacedDisplay, action: other.title)
             return
         }
         conflict = nil
@@ -196,7 +212,7 @@ private struct GeneralSection: View {
             if enabled { try SMAppService.mainApp.register() } else { try SMAppService.mainApp.unregister() }
             launchError = nil
         } catch {
-            launchError = "设置失败：\(error.localizedDescription)"
+            launchError = t.launchFailed(error.localizedDescription)
         }
         launchAtLogin = SMAppService.mainApp.status == .enabled
     }
@@ -211,14 +227,16 @@ private struct AISection: View {
     @State private var isKeyRevealed = false
     @State private var testState: TestState = .idle
 
+    private var t: Strings { Localization.strings }
+
     enum TestState: Equatable {
         case idle, running, success(String), failure(String)
     }
 
     var body: some View {
-        SettingsSection(title: "AI 服务") {
+        SettingsSection(title: t.sectionAIService) {
             SettingsRow {
-                Text("服务商")
+                Text(t.providerRow)
             } control: {
                 DropdownPicker(
                     selection: $settings.provider,
@@ -233,12 +251,12 @@ private struct AISection: View {
                 // SwiftUI 会先压缩「测试」这串弹性文字（先掉行、再被压成 0 宽直接消失）
                 HStack(spacing: 10) {
                     testStatus
-                    Button("测试") { runTest() }
+                    Button(t.testButton) { runTest() }
                         .buttonStyle(TextLinkButtonStyle())
                         .lineLimit(1)
                         .fixedSize()
                         .disabled(testState == .running)
-                    SecretTextField(placeholder: "粘贴 API Key", text: $apiKey, isRevealed: $isKeyRevealed, width: 240)
+                    SecretTextField(placeholder: t.apiKeyPlaceholder, text: $apiKey, isRevealed: $isKeyRevealed, width: 240)
                         .onChange(of: apiKey) { _, value in
                             CredentialStore.shared.setAPIKey(value, for: settings.provider)
                             testState = .idle
@@ -247,9 +265,9 @@ private struct AISection: View {
                 .fixedSize(horizontal: true, vertical: false)
             }
             SettingsRow {
-                Text("模型")
+                Text(t.modelRow)
             } control: {
-                FlatTextField(placeholder: settings.provider.defaultModel.isEmpty ? "模型名称" : settings.provider.defaultModel, text: $settings.model, width: 240)
+                FlatTextField(placeholder: settings.provider.defaultModel.isEmpty ? t.modelPlaceholder : settings.provider.defaultModel, text: $settings.model, width: 240)
                     .onChange(of: settings.model) { testState = .idle }
             }
             if !settings.provider.usesAnthropicAPI {
@@ -263,7 +281,7 @@ private struct AISection: View {
             if case .failure(let message) = testState {
                 SettingsNote(text: message, color: Theme.error)
             }
-            SettingsNote(text: "API Key 只保存在这台 Mac 上，仅你的账户可读。")
+            SettingsNote(text: t.apiKeyNote)
         }
         .onAppear { apiKey = CredentialStore.shared.apiKey(for: settings.provider) }
         .onChange(of: settings.provider) { _, provider in
@@ -282,20 +300,20 @@ private struct AISection: View {
         case .running:
             HStack(spacing: 6) {
                 ProgressView().controlSize(.mini)
-                Text("测试中…").foregroundStyle(Theme.textSecondary).lineLimit(1)
+                Text(t.testRunning).foregroundStyle(Theme.textSecondary).lineLimit(1)
             }
             .font(.system(size: 12))
         case .success(let message):
             HStack(spacing: 6) {
                 Circle().fill(Theme.success).frame(width: 7, height: 7)
-                Text("连接正常").foregroundStyle(Theme.successText).lineLimit(1)
+                Text(t.testConnected).foregroundStyle(Theme.successText).lineLimit(1)
             }
             .font(.system(size: 12, weight: .medium))
             .help(message)
         case .failure:
             HStack(spacing: 6) {
                 Circle().fill(Theme.error).frame(width: 7, height: 7)
-                Text("连接失败").foregroundStyle(Theme.error).lineLimit(1)
+                Text(t.testFailed).foregroundStyle(Theme.error).lineLimit(1)
             }
             .font(.system(size: 12, weight: .medium))
         }
@@ -309,7 +327,7 @@ private struct AISection: View {
                 testState = .success(message)
             case .failure(let error):
                 let notice = AppController.notice(for: error)
-                testState = .failure("\(notice.title)：\(notice.message)")
+                testState = .failure("\(notice.title)\(t.colonSeparator)\(notice.message)")
             }
         }
     }
@@ -323,33 +341,37 @@ private struct TargetsSection: View {
     @State private var calendars: [CalendarChoice] = []
     @State private var lists: [CalendarChoice] = []
 
-    private static let alarmOptions: [DropdownPicker<Int>.Option] = [
-        .init(value: 0, title: "开始时"),
-        .init(value: 5, title: "提前 5 分钟"),
-        .init(value: 10, title: "提前 10 分钟"),
-        .init(value: 15, title: "提前 15 分钟"),
-        .init(value: 30, title: "提前 30 分钟"),
-        .init(value: 60, title: "提前 1 小时"),
-        .init(value: -1, title: "不提醒"),
-    ]
+    private var t: Strings { Localization.strings }
+
+    private var alarmOptions: [DropdownPicker<Int>.Option] {
+        [
+            .init(value: 0, title: t.alertOption(0)),
+            .init(value: 5, title: t.alertOption(5)),
+            .init(value: 10, title: t.alertOption(10)),
+            .init(value: 15, title: t.alertOption(15)),
+            .init(value: 30, title: t.alertOption(30)),
+            .init(value: 60, title: t.alertOption(60)),
+            .init(value: -1, title: t.noAlert),
+        ]
+    }
 
     var body: some View {
-        SettingsSection(title: "默认写入") {
+        SettingsSection(title: t.sectionDefaultTargets) {
             SettingsRow {
                 HStack(spacing: 10) {
                     KindDot(kind: .event)
-                    Text("日程 → 日历")
+                    Text(t.eventsTargetRow)
                 }
             } control: {
                 if CalendarWriter.hasEventAccess {
                     DropdownPicker(
                         selection: Binding(
-                            get: { settings.eventCalendarID ?? calendars.first(where: { $0.title == "工作" })?.id ?? "" },
+                            get: { settings.eventCalendarID ?? calendars.first(where: { isWorkCalendar($0.title) })?.id ?? "" },
                             set: { settings.eventCalendarID = $0 }
                         ),
                         options: calendars.map { .init(value: $0.id, title: $0.title) },
                         width: 200,
-                        placeholder: "系统默认"
+                        placeholder: t.systemDefault
                     )
                 } else {
                     grantButton
@@ -358,42 +380,47 @@ private struct TargetsSection: View {
             SettingsRow {
                 HStack(spacing: 10) {
                     KindDot(kind: .todo, ringColor: Theme.textPrimary)
-                    Text("待办 → 提醒事项")
+                    Text(t.todosTargetRow)
                 }
             } control: {
                 if CalendarWriter.hasReminderAccess {
                     DropdownPicker(
                         selection: Binding(
-                            get: { settings.reminderListID ?? lists.first(where: { $0.title == "工作" })?.id ?? "" },
+                            get: { settings.reminderListID ?? lists.first(where: { isWorkCalendar($0.title) })?.id ?? "" },
                             set: { settings.reminderListID = $0 }
                         ),
                         options: lists.map { .init(value: $0.id, title: $0.title) },
                         width: 200,
-                        placeholder: "系统默认"
+                        placeholder: t.systemDefault
                     )
                 } else {
                     grantButton
                 }
             }
             SettingsRow {
-                Text("默认提醒")
+                Text(t.defaultAlertRow)
             } control: {
                 DropdownPicker(
                     selection: Binding(
                         get: { settings.defaultAlarmMinutes ?? -1 },
                         set: { settings.defaultAlarmMinutes = $0 < 0 ? nil : $0 }
                     ),
-                    options: Self.alarmOptions,
+                    options: alarmOptions,
                     width: 200
                 )
             }
-            SettingsNote(text: "原文写明提醒时间时以原文为准；默认提醒只用于有具体时间的日程。")
+            SettingsNote(text: t.defaultAlertNote)
         }
         .onAppear(perform: reload)
     }
 
+    /// 和 CalendarWriter 的兜底逻辑一致：优先选名为「工作 / Work」的列表
+    private func isWorkCalendar(_ title: String) -> Bool {
+        title == "工作" || title.lowercased() == "work"
+    }
+
     private var grantButton: some View {
-        Button("授权访问") {
+        Button(t.grantAccessButton) {
             Task {
                 await env.requestCalendarAccess()
                 reload()
@@ -413,26 +440,28 @@ private struct TargetsSection: View {
 private struct PrivacySection: View {
     @Bindable var settings: SettingsStore
 
+    private var t: Strings { Localization.strings }
+
     var body: some View {
-        SettingsSection(title: "隐私") {
+        SettingsSection(title: t.sectionPrivacy) {
             SettingsRow {
-                Text("截图只在本机识别文字")
+                Text(t.privacyLocalRecognitionRow)
             } control: {
-                Text("始终开启").font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
+                Text(t.privacyAlwaysOn).font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
             }
             SettingsRow {
-                Text("在日程备注里附上原文")
+                Text(t.privacyAttachSourceRow)
             } control: {
                 Toggle("", isOn: $settings.attachSourceToNotes)
                     .toggleStyle(.switch).controlSize(.small).labelsHidden()
             }
             SettingsRow {
-                Text("添加后不保留原文")
+                Text(t.privacyDiscardSourceRow)
             } control: {
                 Toggle("", isOn: $settings.discardSourceAfterAdd)
                     .toggleStyle(.switch).controlSize(.small).labelsHidden()
             }
-            SettingsNote(text: "只有识别出的文字会发送给你选择的 AI 服务商；截图图片不会离开这台 Mac，识别后立即删除。")
+            SettingsNote(text: t.privacyNote)
         }
     }
 }

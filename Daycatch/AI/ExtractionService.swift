@@ -7,6 +7,8 @@ struct ExtractionService: Sendable {
     var provider: any AIProvider
     var timeZone: TimeZone = .current
     var now: @Sendable () -> Date = { Date() }
+    /// 提示词语言，和界面语言保持一致
+    var language: AppLanguage = Localization.language
 
     func extract(text: String) async throws -> ExtractionResult {
         let input = text.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -14,8 +16,8 @@ struct ExtractionService: Sendable {
         guard !input.isEmpty else { return ExtractionResult(summary: nil, items: []) }
 
         let request = AICompletionRequest(
-            system: ExtractionPrompt.system,
-            user: ExtractionPrompt.userMessage(text: input, now: now(), timeZone: timeZone),
+            system: ExtractionPrompt.system(language),
+            user: ExtractionPrompt.userMessage(text: input, now: now(), timeZone: timeZone, language: language),
             responseSchema: ExtractionPrompt.responseSchema
         )
         let reply = try await provider.complete(request)

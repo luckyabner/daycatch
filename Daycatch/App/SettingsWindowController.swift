@@ -16,7 +16,7 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
             defer: false
         )
         super.init()
-        window.title = "Daycatch 设置"
+        window.title = Localization.strings.settingsWindowTitle
         window.titleVisibility = .hidden
         window.titlebarAppearsTransparent = true
         window.isMovableByWindowBackground = true
@@ -25,7 +25,7 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
         window.appearance = NSAppearance(named: .aqua)
         window.backgroundColor = .white
         window.delegate = self
-        window.contentView = NSHostingView(rootView: SettingsView(settings: controller.settings, env: makeEnvironment(controller)))
+        window.contentView = makeContentView(controller)
         window.center()
         window.setFrameAutosaveName("DaycatchSettings")
     }
@@ -33,6 +33,17 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
     func show() {
         NSApp.activate()
         window.makeKeyAndOrderFront(nil)
+    }
+
+    /// 语言切换后重建界面（SwiftUI 视图里的文案在创建时取当前语言）
+    func refreshLocalizedText() {
+        window.title = Localization.strings.settingsWindowTitle
+        guard let controller else { return }
+        window.contentView = makeContentView(controller)
+    }
+
+    private func makeContentView(_ controller: AppController) -> NSView {
+        NSHostingView(rootView: SettingsView(settings: controller.settings, env: makeEnvironment(controller)))
     }
 
     private func makeEnvironment(_ controller: AppController) -> SettingsEnvironment {
@@ -49,6 +60,10 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
             },
             shortcutsChanged: { [weak controller] in controller?.applyShortcuts() },
             accentChanged: { [weak controller] in controller?.setContentAccent() },
+            // 等 SwiftUI 这轮更新结束再重建界面，避免在 body 更新中替换窗口内容
+            languageChanged: { [weak controller] in
+                DispatchQueue.main.async { controller?.applyLanguage() }
+            },
             setRecordingShortcut: { [weak controller] recording in controller?.hotkeys.isSuspended = recording }
         )
     }
