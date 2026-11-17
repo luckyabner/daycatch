@@ -8,7 +8,7 @@ A macOS menu bar app that turns text or a screenshot into calendar events and re
   <img src="docs/screenshots/en/agenda.png" width="720" alt="Daycatch agenda panel showing upcoming events and todos">
 </p>
 
-No more copying "Thursday 3pm, Q4 review, 3F meeting room" from WeChat into two different apps. Nothing is written until you confirm it, and everything written can be undone.
+No more copying “Thursday 3pm, Q4 review, Room 302” out of Slack or iMessage and into two different apps. Nothing is written until you confirm it, and everything written can be undone.
 
 ## Why another one
 
@@ -80,7 +80,7 @@ In the results panel: `↩` adds the checked items, `⌘E` edits a row inline, `
 | Claude (Anthropic) | `https://api.anthropic.com` | `claude-opus-5-5` |
 | OpenAI | `https://api.openai.com/v1` | `gpt-5-mini` |
 | DeepSeek | `https://api.deepseek.com/v1` | `deepseek-chat` |
-| Qwen (通义千问) | `https://dashscope.aliyuncs.com/compatible-mode/v1` | `qwen-plus` |
+| Qwen (Alibaba Cloud) | `https://dashscope.aliyuncs.com/compatible-mode/v1` | `qwen-plus` |
 | Custom | any OpenAI-compatible base URL | your choice |
 
 Anthropic uses the native Messages API; every other provider goes through the OpenAI-compatible chat completions API. Base URL and model are both editable, so other compatible services (local proxies, gateways, self-hosted models) work too. Input is capped at 20,000 characters.
