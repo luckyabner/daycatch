@@ -9,18 +9,22 @@ final class ToastModel {
         case undoing
         case undone
         case failed(String)
+        /// 引导类提示（如缺少系统权限）：不需要确认，也不会抢系统授权弹窗的焦点
+        case hint
     }
 
     var title = ""
     var detail = ""
     var state: State = .added
+    /// 卡片右侧按钮的文案：默认「撤销」，引导提示时换成「去设置」之类
+    var actionTitle = "撤销"
     var isHovering = false
 }
 
-/// 添加成功后右下角的白色通知卡片（宽 340），带"撤销"。
+/// 右下角的白色通知卡片（宽 340）：添加成功后带"撤销"，引导提示时带"去设置"。
 struct ToastView: View {
     @Bindable var model: ToastModel
-    var undo: () -> Void
+    var action: () -> Void
 
     var body: some View {
         HStack(spacing: 12) {
@@ -34,8 +38,8 @@ struct ToastView: View {
                     .lineLimit(2)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            if model.state == .added {
-                Button("撤销", action: undo)
+            if model.state == .added || model.state == .hint {
+                Button(model.actionTitle, action: action)
                     .buttonStyle(CapsuleButtonStyle())
             } else if model.state == .undoing {
                 ProgressView().controlSize(.small)
@@ -61,13 +65,14 @@ struct ToastView: View {
         switch model.state {
         case .failed: Circle().fill(Theme.error).frame(width: 7, height: 7)
         case .undone: Circle().strokeBorder(Theme.todoRing, lineWidth: 1.5).frame(width: 7, height: 7)
+        case .hint: KindDot(kind: .todo)
         default: KindDot(kind: .event)
         }
     }
 
     private var title: String {
         switch model.state {
-        case .added, .undoing: model.title
+        case .added, .undoing, .hint: model.title
         case .undone: "已撤销"
         case .failed: "操作失败"
         }
@@ -75,7 +80,7 @@ struct ToastView: View {
 
     private var detail: String {
         switch model.state {
-        case .added, .undoing: model.detail
+        case .added, .undoing, .hint: model.detail
         case .undone: "刚写入的事项已删除"
         case .failed(let message): message
         }

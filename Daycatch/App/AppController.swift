@@ -33,7 +33,7 @@ final class AppController {
         calendarWriter.onStoreChanged = { [weak self] in self?.refreshCalendarTitles() }
 
         configureManualPanel()
-        configureToast()
+        configureToast { [weak self] in self?.undoLastWrite() }
     }
 
     // MARK: - ③ 手动输入
@@ -131,14 +131,14 @@ final class AppController {
         closeResult()
         let mouse = NSEvent.mouseLocation
         guard Permissions.isAccessibilityTrusted else {
+            // 只让系统弹自己的授权对话框（macOS 只会问一次）；
+            // 我们不再叠一个自制的权限面板，改用右下角不打断操作的小卡片
             Permissions.promptAccessibility()
-            let model = RecognitionModel(source: .selection)
-            model.phase = .notice(Notice(
+            showPermissionHint(
                 title: "需要开启「辅助功能」权限",
-                message: "Daycatch 需要这个权限来读取你选中的文字，并在读取失败时代你按下 ⌘C。在系统设置的「隐私与安全性 → 辅助功能」中打开 Daycatch，然后再按一次 \(shortcutText(.selection))。如果已经打开仍看到这条提示，请在列表里用「−」移除 Daycatch 后重新添加。",
-                actions: [.openAccessibilitySettings]
-            ))
-            showResult(model, near: mouse)
+                detail: "允许后再按一次 \(shortcutText(.selection)) 即可。",
+                pane: .accessibility
+            )
             return
         }
 
@@ -169,14 +169,13 @@ final class AppController {
         closeResult()
 
         guard Permissions.hasScreenRecordingAccess else {
+            // 同上：授权对话框交给系统，应用只给一条可忽略的提示
             Permissions.requestScreenRecording()
-            let model = RecognitionModel(source: .screenshot)
-            model.phase = .notice(Notice(
+            showPermissionHint(
                 title: "需要开启「屏幕录制」权限",
-                message: "截图识别需要读取屏幕内容。在系统设置的「隐私与安全性 → 屏幕与系统录音」中打开 Daycatch，必要时重新启动 Daycatch。截图只在本机识别文字，图片不会上传。",
-                actions: [.openScreenRecordingSettings]
-            ))
-            showResult(model, near: NSEvent.mouseLocation)
+                detail: "允许后重新截图；未生效就重启一次 Daycatch。",
+                pane: .screenRecording
+            )
             return
         }
 
@@ -361,11 +360,11 @@ final class AppController {
         }
     }
 
-    private func configureToast() {
+    private func configureToast(action: @escaping () -> Void) {
         toastHost.panel.allowsKey = false
         toastHost.keepsOnScreen = false
         toastHost.setContent(
-            ToastView(model: toastModel) { [weak self] in self?.undoLastWrite() }
+            ToastView(model: toastModel, action: action)
                 .daycatchStyle(accent: settings.accent)
         )
     }
@@ -374,11 +373,31 @@ final class AppController {
         toastReceipt = receipt
         toastModel.title = "已添加 \(receipt.totalCount) 项"
         toastModel.detail = receipt.summary
+        toastModel.actionTitle = "撤销"
         toastModel.state = .added
-        configureToast()
+        configureToast { [weak self] in self?.undoLastWrite() }
         let visible = (NSScreen.main ?? NSScreen.screens[0]).visibleFrame
         toastHost.show(topLeft: NSPoint(x: visible.maxX - 340 - 24, y: visible.minY + 24 + 64), makeKey: false)
         scheduleToastDismiss(after: 8)
+    }
+
+    /// 缺少系统权限时的提示：系统自己会弹授权对话框，这里只用右下角卡片说明，
+    /// 不占焦点、不遮挡、也不需要用户在这里做决定
+    private func showPermissionHint(title: String, detail: String, pane: Permissions.Pane) {
+        toastReceipt = nil
+        toastModel.title = title
+        toastModel.detail = detail
+        toastModel.actionTitle = "去设置"
+        toastModel.state = .hint
+        configureToast { [weak self] in
+            // 点「去设置」后立即收起卡片：接下来要看的是系统设置窗口
+            self?.toastDismissTask?.cancel()
+            self?.toastHost.close()
+            Permissions.openSystemSettings(pane)
+        }
+        let visible = (NSScreen.main ?? NSScreen.screens[0]).visibleFrame
+        toastHost.show(topLeft: NSPoint(x: visible.maxX - 340 - 24, y: visible.minY + 24 + 64), makeKey: false)
+        scheduleToastDismiss(after: 10)
     }
 
     private func scheduleToastDismiss(after seconds: Double) {

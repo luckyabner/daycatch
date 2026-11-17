@@ -119,7 +119,7 @@ private struct GeneralSection: View {
             if let conflict {
                 SettingsNote(text: conflict).foregroundStyle(Theme.warning)
             }
-            SettingsNote(text: "选中识别需开启“辅助功能”权限，读取失败时自动改用 ⌘C。")
+            SettingsNote(text: "选中识别需开启“辅助功能”权限，读取失败时自动改用 ⌘C。如果开关已打开仍提示无权限，在列表里用「−」移除 Daycatch 后重新添加。")
             SettingsRow {
                 Text("辅助功能权限")
             } control: {

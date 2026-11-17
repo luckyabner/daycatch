@@ -44,7 +44,15 @@ enum DebugSnapshots {
         let toast = ToastModel()
         toast.title = "已添加 2 项"
         toast.detail = "日历「工作」1 项 · 提醒事项「工作」1 项"
-        save(ToastView(model: toast, undo: {}).daycatchStyle(accent: accent), "3-toast", directory)
+        save(ToastView(model: toast, action: {}).daycatchStyle(accent: accent), "3-toast", directory)
+
+        // 缺权限时的引导卡片（系统自己弹授权对话框，这里只做不打断的说明）
+        let hint = ToastModel()
+        hint.title = "需要开启「屏幕录制」权限"
+        hint.detail = "允许后重新截图；未生效就重启一次 Daycatch。"
+        hint.actionTitle = "去设置"
+        hint.state = .hint
+        save(ToastView(model: hint, action: {}).daycatchStyle(accent: accent), "3-toast-hint", directory)
 
         let settings = SettingsStore(defaults: UserDefaults(suiteName: "daycatch.snapshot") ?? .standard)
         let env = SettingsEnvironment(
