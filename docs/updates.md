@@ -46,7 +46,7 @@ build/sparkle/bin/generate_keys -x .signing/sparkle_ed25519.key   # 导出私钥
 前置：`gh auth login` 已登录，工作区干净。
 
 ```sh
-make release VERSION=0.2.0 NOTES=docs/notes/0.2.0.md
+make release VERSION=0.2.0 NOTES=notes/0.2.0.md
 ```
 
 `NOTES` 可选，是个 markdown 文件；有它的内容会作为 appcast 里的更新说明和 Release 的说明。
