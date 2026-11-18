@@ -148,6 +148,8 @@ make test       # unit tests, no network, no app launch
 make snapshot   # regenerate docs-ready screenshots at build/snapshots/
 ```
 
+Before cutting a release, walk through [notes/checklist.md](notes/checklist.md) — it lists the post-release checks and how to back out a bad one.
+
 The test target compiles the pure-logic sources (`Model`, `AI`, `Shortcut`, `CredentialStore`) directly instead of hosting the app, so tests never launch the menu bar agent. AI calls are faked at the HTTP layer, so the suite runs offline.
 
 ## Known limitations

@@ -43,7 +43,9 @@ build/sparkle/bin/generate_keys -x .signing/sparkle_ed25519.key   # 导出私钥
 
 ## 发版
 
-前置：`gh auth login` 已登录，工作区干净。
+> 发之前先过一遍 [notes/checklist.md](checklist.md)：里面有必查项、发布后的验收命令，以及出问题时的收场方式。
+
+前置：`gh auth login` 已登录，**代码已 commit 并 push**（否则打的 tag 会指向不含本次改动的提交）。
 
 ```sh
 make release VERSION=0.2.0 NOTES=notes/0.2.0.md

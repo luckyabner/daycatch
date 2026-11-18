@@ -148,6 +148,8 @@ make test       # 单元测试，不联网、不启动 App
 make snapshot   # 重新生成截图到 build/snapshots/
 ```
 
+发版前先过一遍 [notes/checklist.md](notes/checklist.md)（发布后必查项 + 出问题时怎么收场）。
+
 测试目标直接把纯逻辑源码（`Model`、`AI`、`Shortcut`、`CredentialStore`）编进测试包，不挂宿主 App，所以测试时不会启动菜单栏应用；AI 调用在 HTTP 层被替换成假响应，整套测试离线可跑。
 
 ## 已知限制
