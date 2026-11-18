@@ -73,6 +73,11 @@ release: sparkle-tools gen
 		echo "缺少 Sparkle 私钥 $(SPARKLE_KEY)，见 docs/updates.md"; \
 		exit 1; \
 	fi
+	@# 发布说明写错路径时，先杀掉，别白白跑完几分钟的打包
+	@if [ -n "$(NOTES)" ] && [ ! -f "$(NOTES)" ]; then \
+		echo "找不到发布说明文件：$(NOTES)"; \
+		exit 1; \
+	fi
 	@echo "构建 Daycatch $(VERSION) (build $(BUILD_NUMBER))"
 	rm -rf "$(ARCHIVE)" "$(RELEASE_DIR)"
 	mkdir -p "$(APPCAST_DIR)"
