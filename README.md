@@ -5,6 +5,11 @@
 A macOS menu bar app that turns text or a screenshot into calendar events and reminders. Select a message, paste a chat log, or capture a screen region — Daycatch extracts the dates, times, and tasks with an AI model of your choice, shows you what it found, and writes the confirmed items into **Calendar** and **Reminders** with one keystroke.
 
 <p align="center">
+  <a href="docs/promo/daycatch-promo-en.mp4"><img src="docs/promo/poster-en.jpg" width="720" alt="Daycatch demo video — click to play (50 s)"></a>
+  <br><sub>▶ 50-second demo · <a href="docs/promo/daycatch-promo-zh-CN.mp4">中文版</a></sub>
+</p>
+
+<p align="center">
   <img src="docs/screenshots/en/agenda.png" width="720" alt="Daycatch agenda panel showing upcoming events and todos">
 </p>
 
@@ -138,7 +143,7 @@ Daycatch/
   Hotkeys/      Global hotkeys (Carbon + CGEventTap)
 DaycatchTests/  Unit tests (fake AI responses and HTTP)
 Spikes/         Minimal probes for system APIs
-docs/           Screenshots
+docs/           Screenshots, promo videos
 ```
 
 ## Development
