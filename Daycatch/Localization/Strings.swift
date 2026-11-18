@@ -377,9 +377,10 @@ struct Strings: Equatable, Sendable {
     var noAlert: String { pick("不提醒", "None") }
 
     /// 下拉选项：提前 N 分钟 / N minutes before
+    /// 待办的 0 分钟不说"截止"：它也可能是「到点提醒」（如“会话 15:49 重置”）。
     func alertOption(_ minutes: Int, isTodo: Bool = false) -> String {
         if minutes == 0 {
-            return isTodo ? pick("截止时", "At due time") : pick("开始时", "At start")
+            return isTodo ? pick("到点", "At due time") : pick("开始时", "At start")
         }
         if minutes % 1440 == 0 {
             let days = minutes / 1440
@@ -404,8 +405,10 @@ struct Strings: Equatable, Sendable {
         "\(start) – \(end)"
     }
 
-    func dueBy(_ time: String) -> String {
-        pick("\(time) 前完成", "Due by \(time)")
+    /// 待办的截止时刻。不写成"X 前完成"：待办也可能是「到点提醒」，
+    /// 例如截图里的"Claude 会话将在 15:49 重置"，并没有要完成的任务。
+    func dueAt(_ time: String) -> String {
+        pick(time, "Due \(time)")
     }
 
     var dueThatDay: String { pick("当天截止", "Due end of day") }
@@ -431,7 +434,7 @@ struct Strings: Equatable, Sendable {
     /// 事项行下方的「提醒」说明
     func alertReminder(_ minutes: Int, isTodo: Bool = false) -> String {
         if minutes == 0 {
-            return isTodo ? pick("截止时提醒", "Alert at due time") : pick("开始时提醒", "Alert at start")
+            return isTodo ? pick("到点提醒", "Alert at due time") : pick("开始时提醒", "Alert at start")
         }
         if minutes % 1440 == 0 {
             let days = minutes / 1440

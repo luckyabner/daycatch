@@ -65,7 +65,7 @@ struct ItemFormatter: Sendable {
 
     func dueText(_ item: ExtractedItem) -> String {
         guard let due = item.due else { return strings.noDueTime }
-        return due.hasTime ? strings.dueBy(dateText.clock(due.date)) : strings.dueThatDay
+        return due.hasTime ? strings.dueAt(dateText.clock(due.date)) : strings.dueThatDay
     }
 
     func alarmText(_ minutes: Int, isTodo: Bool = false) -> String {

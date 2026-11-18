@@ -33,6 +33,8 @@ final class LocalizationTests: XCTestCase {
         XCTAssertEqual(chinese.duration(75), "1 小时 15 分钟")
         XCTAssertEqual(chinese.alertReminder(1440), "提前 1 天提醒")
         XCTAssertEqual(chinese.alertOption(5), "提前 5 分钟")
+        XCTAssertEqual(chinese.alertReminder(0, isTodo: true), "到点提醒")
+        XCTAssertEqual(chinese.alertOption(0, isTodo: true), "到点")
     }
 
     func testEnglishDateFormatting() {

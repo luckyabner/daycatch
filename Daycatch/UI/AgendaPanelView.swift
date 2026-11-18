@@ -417,7 +417,7 @@ private enum AgendaText {
                 if entry.isOverdue {
                     parts.append(t.overdue)
                 } else if entry.hasTime {
-                    parts.append(t.dueBy(clock(date)))
+                    parts.append(t.dueAt(clock(date)))
                 } else {
                     parts.append(t.dueThatDay)
                 }

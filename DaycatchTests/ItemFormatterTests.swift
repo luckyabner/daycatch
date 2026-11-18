@@ -43,11 +43,22 @@ final class ItemFormatterTests: XCTestCase {
 
     func testTodoDueText() {
         var todo = ExtractedItem(kind: .todo, title: "x", due: ItemDate(date: shanghaiDate(2026, 11, 19, 15), hasTime: true))
-        XCTAssertEqual(formatter.dueText(todo), "15:00 前完成")
+        XCTAssertEqual(formatter.dueText(todo), "15:00")
         todo.due = ItemDate(date: shanghaiDate(2026, 11, 21), hasTime: false)
         XCTAssertEqual(formatter.dueText(todo), "当天截止")
         todo.due = nil
         XCTAssertEqual(formatter.dueText(todo), "无截止时间")
+    }
+
+    /// 待办可能只是「到点提醒」（如“会话 15:49 重置”），所以截止行不写“前完成”。
+    func testTodoDueTextIsNeutral() {
+        let english = ItemFormatter(timeZone: shanghai, language: .english)
+        let due = shanghaiDate(2026, 11, 19, 15)
+        let todo = ExtractedItem(kind: .todo, title: "x", due: ItemDate(date: due, hasTime: true))
+        // 英文用 "Due 3:00 PM"（系统短时间格式里"PM"前的空格不是普通空格，所以用 clock 拼）
+        XCTAssertEqual(english.dueText(todo), "Due \(DateText(language: .english, timeZone: shanghai).clock(due))")
+        XCTAssertEqual(Strings(language: .chinese).dueAt("15:49"), "15:49")
+        XCTAssertEqual(Strings(language: .english).dueAt("3:49 PM"), "Due 3:49 PM")
     }
 
     func testAlarmText() {
@@ -55,8 +66,8 @@ final class ItemFormatterTests: XCTestCase {
         XCTAssertEqual(formatter.alarmText(15), "提前 15 分钟提醒")
         XCTAssertEqual(formatter.alarmText(60), "提前 1 小时提醒")
         XCTAssertEqual(formatter.alarmText(1440), "提前 1 天提醒")
-        // 待办在截止时刻提醒
-        XCTAssertEqual(formatter.alarmText(0, isTodo: true), "截止时提醒")
+        // 待办在到点提醒
+        XCTAssertEqual(formatter.alarmText(0, isTodo: true), "到点提醒")
         XCTAssertEqual(formatter.alarmText(30, isTodo: true), "提前 30 分钟提醒")
     }
 
@@ -75,8 +86,8 @@ final class ItemFormatterTests: XCTestCase {
 
     func testTodoDetailLinesShowAlarm() {
         let todo = ExtractedItem(kind: .todo, title: "x", due: ItemDate(date: shanghaiDate(2026, 11, 19, 15), hasTime: true))
-        XCTAssertEqual(formatter.detailLines(for: todo, alarmMinutes: 0), ["15:00 前完成", "截止时提醒"])
-        XCTAssertEqual(formatter.detailLines(for: todo, alarmMinutes: nil), ["15:00 前完成"])
+        XCTAssertEqual(formatter.detailLines(for: todo, alarmMinutes: 0), ["15:00", "到点提醒"])
+        XCTAssertEqual(formatter.detailLines(for: todo, alarmMinutes: nil), ["15:00"])
         // 只有日期没有时间时不写闹钟，也不显示提醒
         let untimed = ExtractedItem(kind: .todo, title: "x", due: ItemDate(date: shanghaiDate(2026, 11, 21), hasTime: false))
         XCTAssertEqual(formatter.detailLines(for: untimed, alarmMinutes: 0), ["当天截止"])
