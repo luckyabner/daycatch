@@ -48,6 +48,7 @@ struct Strings: Equatable, Sendable {
     var paneAI: String { pick("AI 服务", "AI service") }
     var paneCalendar: String { pick("日历", "Calendar") }
     var panePrivacy: String { pick("隐私", "Privacy") }
+    var paneAbout: String { pick("关于", "About") }
 
     // 通用
 
@@ -167,6 +168,46 @@ struct Strings: Equatable, Sendable {
         pick(
             "只有识别出的文字会发送给你选择的 AI 服务商；截图图片不会离开这台 Mac，识别后立即删除。",
             "Only the recognized text is sent to your AI provider. Screenshots never leave this Mac and are deleted right after recognition."
+        )
+    }
+
+    // MARK: - 更新
+
+    var sectionAbout: String { pick("关于", "About") }
+    var versionRow: String { pick("版本", "Version") }
+    var autoCheckRow: String { pick("自动检查更新", "Check for updates automatically") }
+    var checkForUpdatesRow: String { pick("手动检查", "Manual check") }
+    /// 菜单项和按钮都用它（带省略号，沿用 macOS 「会弹窗」的写法）
+    var checkForUpdates: String { pick("检查更新…", "Check for Updates…") }
+    var checkNowButton: String { pick("检查更新", "Check now") }
+    var checkingUpdates: String { pick("正在检查…", "Checking…") }
+    var upToDateText: String { pick("已是最新版本", "You’re up to date") }
+
+    func updateAvailable(_ version: String) -> String {
+        pick("发现新版本 \(version)", "Version \(version) is available")
+    }
+
+    func updateCheckFailed(_ message: String) -> String {
+        pick("检查失败：\(message)", "Couldn’t check: \(message)")
+    }
+
+    var updateNote: String {
+        pick(
+            "更新来自 GitHub 上的 Release，由 Sparkle 校验签名后安装。开启自动检查后每 24 小时在后台检查一次，发现新版本会先询问是否更新。",
+            "Updates come from GitHub Releases and are signature-checked by Sparkle. With automatic checks on, Daycatch checks once every 24 hours in the background and asks before installing anything."
+        )
+    }
+
+    var updateAction: String { pick("更新", "Update") }
+
+    func updateAvailableToastTitle(_ version: String) -> String {
+        pick("有新版本 \(version)", "Version \(version) is available")
+    }
+
+    var updateAvailableToastDetail: String {
+        pick(
+            "点「更新」下载并安装，装完会自动重启。",
+            "Click Update to download and install. Daycatch restarts when it’s done."
         )
     }
 

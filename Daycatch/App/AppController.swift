@@ -7,6 +7,7 @@ final class AppController {
     let settings = SettingsStore()
     let calendarWriter = CalendarWriter()
     let hotkeys = HotkeyManager()
+    let updates = UpdateController()
     private let statusItem = StatusItemController()
 
     private let manualModel = RecognitionModel(source: .manual)
@@ -29,6 +30,13 @@ final class AppController {
         statusItem.refreshLocalizedText()
         statusItem.onClick = { [weak self] in self?.toggleAgenda() }
         statusItem.onOpenSettings = { [weak self] in self?.openSettings() }
+        statusItem.onCheckForUpdates = { [weak self] in self?.updates.checkForUpdates() }
+
+        updates.onScheduledUpdateFound = { [weak self] version in self?.showUpdateReminder(version) }
+        updates.onUpdateAttention = { [weak self] in
+            guard let self, self.toastModel.action == .update else { return }
+            self.toastHost.close()
+        }
 
         hotkeys.setHandler(for: .selection) { [weak self] in self?.startSelection() }
         hotkeys.setHandler(for: .screenshot) { [weak self] in self?.startScreenshot() }
@@ -490,7 +498,7 @@ final class AppController {
         toastReceipt = receipt
         toastModel.title = t.addedItemsTitle(receipt.totalCount)
         toastModel.detail = receipt.summary
-        toastModel.actionTitle = t.undo
+        toastModel.action = .undo
         toastModel.state = .added
         configureToast { [weak self] in self?.undoLastWrite() }
         let visible = (NSScreen.main ?? NSScreen.screens[0]).visibleFrame
@@ -504,7 +512,7 @@ final class AppController {
         toastReceipt = nil
         toastModel.title = title
         toastModel.detail = detail
-        toastModel.actionTitle = t.toastOpenSettings
+        toastModel.action = .openSettings
         toastModel.state = .hint
         configureToast { [weak self] in
             // 点「去设置」后立即收起卡片：接下来要看的是系统设置窗口
@@ -515,6 +523,26 @@ final class AppController {
         let visible = (NSScreen.main ?? NSScreen.screens[0]).visibleFrame
         toastHost.show(topLeft: NSPoint(x: visible.maxX - 340 - 24, y: visible.minY + 24 + 64), makeKey: false)
         scheduleToastDismiss(after: 10)
+    }
+
+    /// 后台检查到了新版本：用右下角卡片提醒，不抢焦点；点「更新」才让 Sparkle
+    /// 弹自己的更新窗口（那里的下载/安装/重启都由 Sparkle 负责）
+    private func showUpdateReminder(_ version: String) {
+        // 正在显示撤销提示时不覆盖它，等下一轮检查再提醒
+        guard !toastHost.isVisible else { return }
+        toastReceipt = nil
+        toastModel.title = t.updateAvailableToastTitle(version)
+        toastModel.detail = t.updateAvailableToastDetail
+        toastModel.action = .update
+        toastModel.state = .hint
+        configureToast { [weak self] in
+            self?.toastDismissTask?.cancel()
+            self?.toastHost.close()
+            self?.updates.checkForUpdates()
+        }
+        let visible = (NSScreen.main ?? NSScreen.screens[0]).visibleFrame
+        toastHost.show(topLeft: NSPoint(x: visible.maxX - 340 - 24, y: visible.minY + 24 + 64), makeKey: false)
+        scheduleToastDismiss(after: 15)
     }
 
     private func scheduleToastDismiss(after seconds: Double) {
@@ -664,9 +692,6 @@ final class AppController {
         configureManualPanel()
         rebuildAgendaPanel()
         if let resultModel { updateResultContent(resultModel) }
-        if toastHost.isVisible {
-            toastModel.actionTitle = toastModel.state == .hint ? t.toastOpenSettings : t.undo
-        }
     }
 
     private func refreshCalendarTitles() {

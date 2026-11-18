@@ -14,7 +14,7 @@ struct SettingsEnvironment {
 }
 
 enum SettingsPane: String, CaseIterable, Identifiable {
-    case general, ai, targets, privacy
+    case general, ai, targets, privacy, about
     var id: String { rawValue }
 
     var title: String {
@@ -24,14 +24,17 @@ enum SettingsPane: String, CaseIterable, Identifiable {
         case .ai: t.paneAI
         case .targets: t.paneCalendar
         case .privacy: t.panePrivacy
+        case .about: t.paneAbout
         }
     }
 }
 
-/// ④ 设置：左侧 200 宽导航，右侧分组（快捷键 / AI 服务 / 默认写入 / 隐私）。
+/// ④ 设置：左侧 200 宽导航，右侧分组（快捷键 / AI 服务 / 默认写入 / 隐私 / 关于）。
 struct SettingsView: View {
     @Bindable var settings: SettingsStore
     var env: SettingsEnvironment
+    /// 更新器由 AppController 持有；渲染截图时为 nil（不联网、不启动 Sparkle）
+    var updates: UpdateController?
     @State private var selectedPane: SettingsPane = .general
 
     private var t: Strings { Localization.strings }
@@ -47,6 +50,7 @@ struct SettingsView: View {
                         AISection(settings: settings, env: env).id(SettingsPane.ai)
                         TargetsSection(settings: settings, env: env).id(SettingsPane.targets)
                         PrivacySection(settings: settings).id(SettingsPane.privacy)
+                        AboutSection(updates: updates).id(SettingsPane.about)
                     }
                     .padding(.vertical, 36)
                     .padding(.horizontal, 56)
@@ -474,6 +478,78 @@ private struct PrivacySection: View {
                     .toggleStyle(.switch).controlSize(.small).labelsHidden()
             }
             SettingsNote(text: t.privacyNote)
+        }
+    }
+}
+
+// MARK: - 关于
+
+/// 版本号 + 更新入口。实际的下载、校验、替换、重启都由 Sparkle 的窗口完成。
+private struct AboutSection: View {
+    var updates: UpdateController?
+
+    private var t: Strings { Localization.strings }
+
+    var body: some View {
+        SettingsSection(title: t.sectionAbout) {
+            SettingsRow {
+                Text(t.versionRow)
+            } control: {
+                Text(UpdateController.currentVersion)
+                    .font(.system(size: 12))
+                    .monospacedDigit()
+                    .foregroundStyle(Theme.textSecondary)
+            }
+            if let updates {
+                SettingsRow {
+                    Text(t.autoCheckRow)
+                } control: {
+                    Toggle("", isOn: Binding(
+                        get: { updates.checksAutomatically },
+                        set: { updates.setAutomaticallyChecks($0) }
+                    ))
+                    .toggleStyle(.switch)
+                    .controlSize(.small)
+                    .labelsHidden()
+                }
+                SettingsRow {
+                    Text(t.checkForUpdatesRow)
+                } control: {
+                    HStack(spacing: 10) {
+                        status(for: updates)
+                        Button(t.checkNowButton) { updates.checkForUpdates() }
+                            .buttonStyle(CapsuleButtonStyle())
+                            .disabled(updates.isChecking)
+                            .fixedSize()
+                    }
+                }
+                SettingsNote(text: t.updateNote)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func status(for updates: UpdateController) -> some View {
+        switch updates.status {
+        case .idle, .checking:
+            // 检查中由按钮文案表达，这里不重复
+            EmptyView()
+        case .upToDate:
+            Text(t.upToDateText)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(Theme.successText)
+                .lineLimit(1)
+        case .updateAvailable(let version):
+            Text(t.updateAvailable(version))
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(Theme.successText)
+                .lineLimit(1)
+        case .failed(let message):
+            Text(t.updateCheckFailed(message))
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(Theme.error)
+                .lineLimit(1)
+                .help(message)
         }
     }
 }

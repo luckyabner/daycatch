@@ -43,7 +43,7 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
     }
 
     private func makeContentView(_ controller: AppController) -> NSView {
-        NSHostingView(rootView: SettingsView(settings: controller.settings, env: makeEnvironment(controller)))
+        NSHostingView(rootView: SettingsView(settings: controller.settings, env: makeEnvironment(controller), updates: controller.updates))
     }
 
     private func makeEnvironment(_ controller: AppController) -> SettingsEnvironment {

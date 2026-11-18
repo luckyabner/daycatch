@@ -90,7 +90,7 @@ enum DebugSnapshots {
         let hint = ToastModel()
         hint.title = Localization.strings.screenRecordingPermissionTitle
         hint.detail = Localization.strings.screenRecordingPermissionDetail
-        hint.actionTitle = Localization.strings.toastOpenSettings
+        hint.action = .openSettings
         hint.state = .hint
         save(ToastView(model: hint, action: {}).daycatchStyle(accent: accent), "3-toast-hint", directory)
 

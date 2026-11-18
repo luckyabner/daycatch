@@ -10,6 +10,12 @@ options:
     macOS: "14.0"
   createIntermediateGroups: true
 
+packages:
+  # 自动更新。更新源是 GitHub Release 上的 appcast.xml（见 docs/updates.md）
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: "2.10.1"
+
 settings:
   base:
     SWIFT_VERSION: "6.0"
@@ -18,11 +24,21 @@ settings:
     CODE_SIGN_IDENTITY: "-"
     CODE_SIGN_STYLE: Manual
     DEVELOPMENT_TEAM: ""
+    # 版本号默认值；make build / make release 会用 git tag 和提交数覆盖
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    # ---- Sparkle ----
+    # appcast 走 releases/latest/download，发新版本时地址不变，不用改这里
+    SPARKLE_FEED_URL: https://github.com/luckyabner/daycatch/releases/latest/download/appcast.xml
+    # EdDSA 公钥（私钥在 .signing/sparkle_ed25519.key，见 docs/updates.md）
+    SPARKLE_PUBLIC_KEY: "ZKBJvsoeR/mJeSQe4h8M/A9yYen3wRiFM3lTC5nWEaE="
 
 targets:
   Daycatch:
     type: application
     platform: macOS
+    dependencies:
+      - package: Sparkle
     sources:
       - path: Daycatch
         excludes:
@@ -32,9 +48,14 @@ targets:
       path: Daycatch/Info.plist
       properties:
         CFBundleDisplayName: Daycatch
-        CFBundleShortVersionString: "0.1.0"
-        CFBundleVersion: "1"
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         CFBundleIconName: AppIcon
+        # Sparkle：更新源、用于校验更新包的 EdDSA 公钥、启动时自动检查
+        SUFeedURL: "$(SPARKLE_FEED_URL)"
+        SUPublicEDKey: "$(SPARKLE_PUBLIC_KEY)"
+        SUEnableAutomaticChecks: true
+        SUScheduledCheckInterval: 86400
         LSUIElement: true
         LSApplicationCategoryType: public.app-category.productivity
         NSHumanReadableCopyright: ""
@@ -46,6 +67,10 @@ targets:
       path: Daycatch/Daycatch.entitlements
       properties:
         com.apple.security.personal-information.calendars: true
+        # 没有 Developer ID，签名证书是项目内自签的，没有 Team ID；开启硬化运行时后
+        # dyld 的 library validation 会拒绝加载 Sparkle.framework（两边 Team ID 对不上）。
+        # 换取一个能用的自动更新：只关掉这一项，硬化运行时的其它保护（W^X 等）仍然生效。
+        com.apple.security.cs.disable-library-validation: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.luckyabner.daycatch

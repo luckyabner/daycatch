@@ -6,6 +6,7 @@ final class StatusItemController: NSObject {
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     var onClick: (() -> Void)?
     var onOpenSettings: (() -> Void)?
+    var onCheckForUpdates: (() -> Void)?
 
     override init() {
         super.init()
@@ -51,6 +52,9 @@ final class StatusItemController: NSObject {
         let settings = NSMenuItem(title: "\(t.settings)…", action: #selector(openSettings), keyEquivalent: ",")
         settings.target = self
         menu.addItem(settings)
+        let updates = NSMenuItem(title: t.checkForUpdates, action: #selector(checkForUpdates), keyEquivalent: "")
+        updates.target = self
+        menu.addItem(updates)
         menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: t.menuQuit, action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
         statusItem.menu = menu
@@ -60,6 +64,10 @@ final class StatusItemController: NSObject {
 
     @objc private func openSettings() {
         onOpenSettings?()
+    }
+
+    @objc private func checkForUpdates() {
+        onCheckForUpdates?()
     }
 
     /// 设计稿 B1 图标（取景框 + 日历页），18pt 模板图，深浅色菜单栏自动适配

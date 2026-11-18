@@ -16,9 +16,23 @@ final class ToastModel {
     var title = ""
     var detail = ""
     var state: State = .added
-    /// 卡片右侧按钮的文案：默认「撤销」，引导提示时换成「去设置」之类
-    var actionTitle = Localization.strings.undo
+    /// 卡片右侧按钮做什么；文案跟着当前语言走，切换语言后自动刷新
+    var action: Action = .undo
     var isHovering = false
+
+    enum Action: Equatable {
+        case undo
+        case openSettings
+        case update
+    }
+
+    var actionTitle: String {
+        switch action {
+        case .undo: Localization.strings.undo
+        case .openSettings: Localization.strings.toastOpenSettings
+        case .update: Localization.strings.updateAction
+        }
+    }
 }
 
 /// 右下角的白色通知卡片（宽 340）：添加成功后带"撤销"，引导提示时带"去设置"。
