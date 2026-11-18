@@ -267,6 +267,20 @@ struct Strings: Equatable, Sendable {
     var noEventsInYear: String { pick("未来一年没有日程", "No events in the next year") }
     var noOpenTodos: String { pick("没有未完成的待办", "No open reminders") }
 
+    // 倒计时
+
+    var today: String { pick("今天", "Today") }
+    var tomorrow: String { pick("明天", "Tomorrow") }
+    var dayAfterTomorrow: String { pick("后天", "In 2 days") }
+
+    func countdownDays(_ days: Int) -> String {
+        pick("还有 \(days) 天", "In \(quantity(days, "day"))")
+    }
+
+    func overdueDays(_ days: Int) -> String {
+        pick("已过期 \(days) 天", "\(quantity(days, "day")) overdue")
+    }
+
     func deniedColumnTitle(_ kind: ItemKind) -> String {
         switch kind {
         case .event: pick("没有「日历」的访问权限", "No access to Calendar")

@@ -270,6 +270,7 @@ private struct AgendaColumnView: View {
 
 private struct AgendaRowView: View {
     var entry: AgendaEntry
+    @Environment(\.dcAccent) private var accent
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
@@ -287,15 +288,27 @@ private struct AgendaRowView: View {
                         .lineLimit(1)
                         .monospacedDigit()
                 }
-                if !entry.calendarTitle.isEmpty {
+                let countdown = AgendaText.countdown(for: entry)
+                if !entry.calendarTitle.isEmpty || countdown != nil {
                     HStack(spacing: 4) {
-                        Circle()
-                            .fill(entry.calendarColorHex.map { Color(hex: $0) } ?? Theme.todoRing)
-                            .frame(width: 5, height: 5)
-                        Text(entry.calendarTitle)
-                            .font(.system(size: 10))
-                            .foregroundStyle(Theme.textSecondary)
-                            .lineLimit(1)
+                        if !entry.calendarTitle.isEmpty {
+                            Circle()
+                                .fill(entry.calendarColorHex.map { Color(hex: $0) } ?? Theme.todoRing)
+                                .frame(width: 5, height: 5)
+                            Text(entry.calendarTitle)
+                                .font(.system(size: 10))
+                                .foregroundStyle(Theme.textSecondary)
+                                .lineLimit(1)
+                        }
+                        Spacer(minLength: 6)
+                        if let countdown {
+                            Text(countdown.text)
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundStyle(countdownColor(countdown.tone))
+                                .monospacedDigit()
+                                .lineLimit(1)
+                                .fixedSize()
+                        }
                     }
                 }
             }
@@ -304,6 +317,15 @@ private struct AgendaRowView: View {
         .padding(.horizontal, 18)
         .padding(.vertical, 11)
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func countdownColor(_ tone: AgendaCountdown.Tone) -> Color {
+        switch tone {
+        case .today: accent
+        case .soon: Theme.textPrimary
+        case .later: Theme.textBody
+        case .overdue: Theme.warning
+        }
     }
 
     private var dateBadge: some View {
@@ -358,6 +380,18 @@ private struct CornerIconButton<Icon: View>: View {
 
 // MARK: - 文案
 
+private struct AgendaCountdown: Equatable {
+    enum Tone {
+        case today
+        case soon
+        case later
+        case overdue
+    }
+
+    var text: String
+    var tone: Tone
+}
+
 private enum AgendaText {
     private static var t: Strings { Localization.strings }
     private static var dateText: DateText { DateText() }
@@ -393,5 +427,27 @@ private enum AgendaText {
         }
         if let location = entry.location { parts.append(location) }
         return parts.joined(separator: " · ")
+    }
+
+    /// 距离现在还有多少天：「今天」「明天」「后天」「还有 N 天」；待办过期时显示「已过期 N 天」
+    static func countdown(for entry: AgendaEntry, now: Date = Date()) -> AgendaCountdown? {
+        guard let date = entry.date else { return nil }
+        let days = dateText.daysBetween(now, date)
+        if days < 0 {
+            // 跨天的进行中日程也归到「今天」
+            guard entry.kind == .todo else {
+                return AgendaCountdown(text: t.today, tone: .today)
+            }
+            return AgendaCountdown(text: t.overdueDays(-days), tone: .overdue)
+        }
+        if entry.isOverdue {
+            return AgendaCountdown(text: t.overdue, tone: .overdue)
+        }
+        switch days {
+        case 0: return AgendaCountdown(text: t.today, tone: .today)
+        case 1: return AgendaCountdown(text: t.tomorrow, tone: .soon)
+        case 2: return AgendaCountdown(text: t.dayAfterTomorrow, tone: .soon)
+        default: return AgendaCountdown(text: t.countdownDays(days), tone: .later)
+        }
     }
 }

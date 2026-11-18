@@ -59,6 +59,29 @@ final class LocalizationTests: XCTestCase {
         )
     }
 
+    func testCountdownStrings() {
+        XCTAssertEqual(chinese.today, "今天")
+        XCTAssertEqual(chinese.tomorrow, "明天")
+        XCTAssertEqual(chinese.dayAfterTomorrow, "后天")
+        XCTAssertEqual(chinese.countdownDays(3), "还有 3 天")
+        XCTAssertEqual(chinese.overdueDays(2), "已过期 2 天")
+
+        XCTAssertEqual(english.today, "Today")
+        XCTAssertEqual(english.tomorrow, "Tomorrow")
+        XCTAssertEqual(english.dayAfterTomorrow, "In 2 days")
+        XCTAssertEqual(english.countdownDays(1), "In 1 day")
+        XCTAssertEqual(english.countdownDays(6), "In 6 days")
+        XCTAssertEqual(english.overdueDays(2), "2 days overdue")
+    }
+
+    func testDaysBetweenCountsCalendarDays() {
+        let text = DateText(language: .chinese, timeZone: shanghai)
+        XCTAssertEqual(text.daysBetween(shanghaiDate(2026, 11, 17, 23, 30), shanghaiDate(2026, 11, 18, 0, 30)), 1)
+        XCTAssertEqual(text.daysBetween(shanghaiDate(2026, 11, 17, 0, 30), shanghaiDate(2026, 11, 17, 23, 30)), 0)
+        XCTAssertEqual(text.daysBetween(shanghaiDate(2026, 11, 17), shanghaiDate(2026, 11, 16)), -1)
+        XCTAssertEqual(text.daysBetween(shanghaiDate(2026, 11, 17), shanghaiDate(2026, 12, 17)), 30)
+    }
+
     func testItemFormatterFollowsLanguage() {
         let item = ExtractedItem(
             kind: .event, title: "Q4 review",

@@ -52,6 +52,15 @@ struct DateText: Sendable {
         return formatter.string(from: date)
     }
 
+    /// 相隔几个自然日（按本地日历的 0 点算）：今天 = 0，明天 = 1，昨天 = -1
+    func daysBetween(_ from: Date, _ to: Date) -> Int {
+        calendar.dateComponents(
+            [.day],
+            from: calendar.startOfDay(for: from),
+            to: calendar.startOfDay(for: to)
+        ).day ?? 0
+    }
+
     // MARK: - 时间段
 
     /// 日程时间；跨天时带上结束日期（"15:00 – 11月20日 01:00"）
