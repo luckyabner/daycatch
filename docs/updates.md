@@ -56,11 +56,16 @@ make release VERSION=0.2.0 NOTES=notes/0.2.0.md
 1. `xcodebuild archive`（Release，注入 `MARKETING_VERSION` / `CURRENT_PROJECT_VERSION`）
 2. `scripts/sign.sh` 用本地自签名证书重签（含 Sparkle 的 `Autoupdate`、`Updater.app` 和两个 XPC 组件，见下文）
 3. `ditto` 打成 `Daycatch-<版本>.zip`（不能用 `zip(1)`，会丢符号链接和扩展属性）
-4. `generate_appcast` 写 EdDSA 签名、生成 `appcast.xml`（最多保留 3 个版本）
+4. `generate_appcast` 写 EdDSA 签名、生成 `appcast.xml`（只保留最新一条 + 差量包）
 5. `git tag v<版本>` 并 push
-6. `gh release create` 上传 zip + `appcast.xml`
+6. `gh release create` 上传 zip + `appcast.xml` + 差量包
 7. 用新 zip 的 sha256 刷新 `Casks/daycatch.rb`
 8. 把 cask 推到 tap 仓库（`make tap`，release 末尾会自动跑）
+
+两个细节：
+
+- **appcast 只保留最新一条**（`--maximum-versions 1`）。`appcast.xml` 是每个 release 自己的附件，`--download-url-prefix` 会把所有条目的 URL 改写成新 tag 的前缀，而旧版本的 zip 并不在新 release 里 —— 保留旧条目就是死链。只留最新一条不影响任何客户端（Sparkle 会直接取这条最高版本）。
+- **差量包要一起上传**（`*.delta`）。0.1.0 → 0.2.0 的差量只有 5KB，比重新下 2MB 的完整包快很多；不上传的话客户端会请求失败再回退到完整包，日志里会比较难看。
 
 如果本机没有 tap 仓库的克隆：
 
@@ -163,5 +168,6 @@ log show --last 5m --predicate 'subsystem == "org.sparkle-project.Sparkle"' --st
 | 「已是最新版本」但明明发了新版 | `CFBundleVersion` 没有比客户端大（不是 `CFBundleShortVersionString`）；或 Release 是 draft / prerelease，`releases/latest` 不会指向它 |
 | `EdDSA signature does not match` | 签名用的私钥和 `SUPublicEDKey` 不是一对；或 zip 在签名后被改动过 |
 | `An error occurred while running the updater` | 通常是从 DMG 直接运行、路径只读、或没有写 `/Applications` 的权限 |
+| 日志里 `Source doesn't have expected hash` / `Failed to unarchive` | 差量包（delta）对不上：客户端安装的那份 app 被改过（改过 Info.plist、手工重签过）。未改动的正式安装包不会出现；重新检查一次即会换成完整包，或直接重装 |
 | 更新窗口不出现，只在右下角弹卡片 | 预期行为：后台检查用「温和提醒」（`UpdateController` 实现了 `supportsGentleScheduledUpdateReminders`），点卡片上的「更新」才弹 Sparkle 窗口 |
 | 用户首次安装被 Gatekeeper 拦 | 走 `brew install --cask`（cask 的 postflight 会去掉 quarantine）；从浏览器自己下 zip 的话需要手动 `xattr -dr com.apple.quarantine /Applications/Daycatch.app` |

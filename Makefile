@@ -87,16 +87,26 @@ release: sparkle-tools gen
 	@# 必须用 ditto 打包：zip(1) 会丢符号链接和扩展属性，Sparkle 的签名校验会失败
 	ditto -c -k --sequesterRsrc --keepParent "$(RELEASE_APP)" "$(ZIP)"
 	@if [ -n "$(NOTES)" ]; then cp "$(NOTES)" "$(APPCAST_DIR)/Daycatch-$(VERSION).md"; fi
+	@# appcast.xml 是每个 release 自己的附件，旧条目里的 URL 会被改写成新 tag 的前缀，
+	@# 而那些 zip 并不在新 release 里（会变成死链），所以只保留最新一条。
+	@# delta 照旧生成：老用户只下几千字节的差量。
 	"$(SPARKLE_TOOLS)/generate_appcast" "$(APPCAST_DIR)" \
 		--ed-key-file "$(SPARKLE_KEY)" \
 		--download-url-prefix "$(DOWNLOAD_URL)" \
 		--link "$(HOMEPAGE)" \
-		--embed-release-notes
+		--embed-release-notes \
+		--maximum-versions 1
 	git tag -a "v$(VERSION)" -m "Daycatch $(VERSION)" 2>/dev/null || true
 	git push origin "v$(VERSION)"
-	gh release create "v$(VERSION)" "$(ZIP)" "$(APPCAST_DIR)/appcast.xml" \
-		--title "Daycatch $(VERSION)" \
-		$(if $(NOTES),--notes-file "$(APPCAST_DIR)/Daycatch-$(VERSION).md",--generate-notes)
+	@# delta 也要一起上传，否则 appcast 里的差量链接是空的，客户端白请求一次才回退到完整包
+	@DELTAS=$$(ls "$(APPCAST_DIR)"/*.delta 2>/dev/null || true); \
+	if [ -n "$(NOTES)" ]; then \
+		gh release create "v$(VERSION)" "$(ZIP)" "$(APPCAST_DIR)/appcast.xml" $$DELTAS \
+			--title "Daycatch $(VERSION)" --notes-file "$(APPCAST_DIR)/Daycatch-$(VERSION).md"; \
+	else \
+		gh release create "v$(VERSION)" "$(ZIP)" "$(APPCAST_DIR)/appcast.xml" $$DELTAS \
+			--title "Daycatch $(VERSION)" --generate-notes; \
+	fi
 	$(MAKE) cask
 	@if [ -d "$(TAP_DIR)/.git" ]; then $(MAKE) tap; \
 	else echo "提示：找不到 tap 仓库 $(TAP_DIR)，需手动把 Casks/daycatch.rb 同步到 tap"; fi
