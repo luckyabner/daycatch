@@ -77,4 +77,13 @@ final class ExtractionPromptTests: XCTestCase {
         XCTAssertTrue(ExtractionPrompt.system(.chinese).contains("inferred"))
         XCTAssertTrue(ExtractionPrompt.system(.english).contains("inferred"))
     }
+
+    /// 截图里的倒计时（"将在 1小时26分钟后重置 · 15:49"）也要能被识别成待办，
+    /// 提示词里必须有「等待某个时刻」和「相对时长换算」这两条规则。
+    func testPromptsCoverCountdownWaiting() {
+        XCTAssertTrue(ExtractionPrompt.system(.chinese).contains("重置"))
+        XCTAssertTrue(ExtractionPrompt.system(.chinese).contains("相对时长"))
+        XCTAssertTrue(ExtractionPrompt.system(.english).contains("resets"))
+        XCTAssertTrue(ExtractionPrompt.system(.english).contains("relative durations"))
+    }
 }
