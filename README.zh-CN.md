@@ -4,14 +4,8 @@
 
 macOS 菜单栏应用：把文字或截图变成日历日程和提醒事项。选中一段消息、粘贴一段聊天记录，或者框选一块屏幕——Daycatch 用你自己选择的 AI 服务提取时间、地点和任务，先把识别结果摆给你确认，再把确认过的内容一键写入「日历」和「提醒事项」。
 
-<p align="center">
-  <a href="docs/promo/daycatch-promo-zh-CN.mp4"><img src="docs/promo/poster-zh-CN.jpg" width="720" alt="Daycatch 演示视频，点击播放（50 秒）"></a>
-  <br><sub>▶ 50 秒演示 · <a href="docs/promo/daycatch-promo-en.mp4">English version</a></sub>
-</p>
 
-<p align="center">
-  <img src="docs/screenshots/agenda.png" width="720" alt="Daycatch 日程面板：即将到来的日程和待办">
-</p>
+https://github.com/user-attachments/assets/55a921ca-1781-4528-9757-8f4d91cbde88
 
 不用再把「周四下午 3 点 Q4 复盘会 3 楼会议室」从微信里复制到两个不同的 App。没有确认之前不会写入任何东西，写错了也能一键撤销。
 
