@@ -52,6 +52,24 @@ restore() { security list-keychains -d user -s "${ORIGINAL[@]}"; }
 trap restore EXIT
 security list-keychains -d user -s "${ORIGINAL[@]}" "$KEYCHAIN"
 
+# Sparkle 的嵌套组件必须先用同一身份重签，而且要从内往外：
+# 开了硬化运行时（ENABLE_HARDENED_RUNTIME）后，加载的代码必须和主程序同签名身份（library validation），
+# SPM 里下载的 Sparkle.framework 是 Sparkle 项目自己的证书签的，不重签会在运行时加载失败。
+FRAMEWORKS="$APP/Contents/Frameworks"
+if [ -d "$FRAMEWORKS/Sparkle.framework" ]; then
+    for ITEM in \
+        "$FRAMEWORKS/Sparkle.framework/Versions/B/Autoupdate" \
+        "$FRAMEWORKS/Sparkle.framework/Versions/B/Updater.app" \
+        "$FRAMEWORKS/Sparkle.framework/Versions/B/XPCServices/Downloader.xpc" \
+        "$FRAMEWORKS/Sparkle.framework/Versions/B/XPCServices/Installer.xpc"
+    do
+        if [ -e "$ITEM" ]; then
+            codesign --force --options runtime --sign "$IDENTITY" "$ITEM"
+        fi
+    done
+    codesign --force --options runtime --sign "$IDENTITY" "$FRAMEWORKS/Sparkle.framework"
+fi
+
 codesign --force --options runtime --entitlements "$ENTITLEMENTS" --sign "$IDENTITY" "$APP"
-codesign --verify "$APP"
+codesign --verify --deep --strict "$APP"
 echo "已签名：$(codesign -dr - "$APP" 2>&1 | tail -1 | sed 's/^# //')"
