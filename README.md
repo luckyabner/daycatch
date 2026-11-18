@@ -44,6 +44,22 @@ No more copying “Thursday 3pm, Q4 review, Room 302” out of Slack or iMessage
 - [XcodeGen](https://github.com/yonaskolb/XcodeGen) — `brew install xcodegen`
 - An API key for one of the supported AI providers
 
+## Install
+
+```sh
+brew trust luckyabner/daycatch                          # Homebrew requires trusting third-party taps
+brew install --cask luckyabner/daycatch/daycatch
+```
+
+You can also build from source — see below.
+
+## Updates
+
+Daycatch updates itself with [Sparkle](https://sparkle-project.org): it checks GitHub Releases once every 24 hours in the background, and when a new version exists a card appears in the corner — click **Update** to download, verify the signature, replace the app, and relaunch.
+You can also check by hand: **Settings → About → Check now**, or right-click the menu bar icon → **Check for Updates…**.
+
+Your settings and granted system permissions survive updates. See [docs/updates.md](docs/updates.md) for the release process and signing keys.
+
 ## Build and run
 
 ```sh
@@ -54,6 +70,7 @@ make build      # generate Daycatch.xcodeproj and build Debug
 make test       # run unit tests (offline, no app launch)
 make run        # build, then launch — a calendar icon appears in the menu bar
 make snapshot   # render every screen with sample data to build/snapshots/
+make release VERSION=0.2.0   # publish: zip + signature + appcast + GitHub Release (see docs/updates.md)
 ```
 
 `Daycatch.xcodeproj` is generated from `project.yml` — don't edit it by hand.
@@ -138,7 +155,7 @@ The test target compiles the pure-logic sources (`Model`, `AI`, `Shortcut`, `Cre
 - The UI is currently **Simplified Chinese only**. Localization PRs are very welcome.
 - macOS only; no iOS companion.
 - One API key per provider, stored locally in a plain file (see Privacy).
-- Not notarized — this is a build-from-source project, not a signed download.
+- Not notarized — it is signed with a project-local self-signed certificate, so install it with Homebrew (see Install) rather than a browser download.
 
 ## Contributing
 

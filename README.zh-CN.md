@@ -44,6 +44,22 @@ macOS 菜单栏应用：把文字或截图变成日历日程和提醒事项。�
 - [XcodeGen](https://github.com/yonaskolb/XcodeGen)：`brew install xcodegen`
 - 任一受支持 AI 服务的 API Key
 
+## 安装
+
+```sh
+brew trust luckyabner/daycatch                          # Homebrew 要求先信任第三方 tap
+brew install --cask luckyabner/daycatch/daycatch
+```
+
+也可以按下面的「构建与运行」从源码编译。
+
+## 更新
+
+Daycatch 用 [Sparkle](https://sparkle-project.org) 自动更新：每 24 小时在后台查一次 GitHub Release，发现新版本时右下角会弹一张卡片，点「更新」就下载、校验签名、替换并重启。
+也可以随时手动检查：「设置 → 关于 → 检查更新」，或右键菜单栏图标 →「检查更新…」。
+
+界面语言、快捷键等设置和已授予的系统权限在更新后都会保留。发版流程和签名密钥见 [docs/updates.md](docs/updates.md)。
+
 ## 构建与运行
 
 ```sh
@@ -54,6 +70,7 @@ make build      # 生成 Daycatch.xcodeproj 并编译 Debug
 make test       # 运行单元测试（不联网、不启动 App）
 make run        # 编译并启动，菜单栏出现日历图标
 make snapshot   # 用示例数据把各界面渲染成 PNG：build/snapshots/
+make release VERSION=0.2.0   # 发版：打包 + 签名 + appcast + GitHub Release（见 docs/updates.md）
 ```
 
 工程文件由 `project.yml` 生成，不要手动修改 `Daycatch.xcodeproj`。
@@ -138,7 +155,7 @@ make snapshot   # 重新生成截图到 build/snapshots/
 - 界面目前**只有简体中文**。欢迎本地化 PR。
 - 仅支持 macOS，没有 iOS 版本。
 - 每个服务商一个 API Key，以明文文件存在本机（见「隐私」）。
-- 没有公证，这是从源码自行构建的项目，不提供签名安装包。
+- 没有公证，用的是项目内自签名证书：首次安装请用 Homebrew（见「安装」），不要从浏览器下压缩包。
 
 ## 参与贡献
 
